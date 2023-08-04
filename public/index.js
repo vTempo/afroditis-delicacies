@@ -1,11 +1,5 @@
 /**
- * Name: _your name here_
- * Date: _add date here_
- * Section: CSE 154 _your section here_
- *
- * -- your description of what this file does here --
- * Do not keep comments from this template in any work you submit (functions included under "Helper
- * functions" are an exception, you may keep the function names/comments of id/qs/qsa/gen)
+ * header comment
  */
 "use strict";
 
@@ -21,8 +15,14 @@
   /**
    * CHANGE: Describe what your init function does here.
    */
-  function init() {
+  async function init() {
     // THIS IS THE CODE THAT WILL BE EXECUTED ONCE THE WEBPAGE LOADS
+    try {
+      await getHeaderFooter();
+      console.log("hi");
+    } catch (error) {
+
+    }
   }
 
   /**
@@ -30,8 +30,19 @@
    * every function detailing what it's purpose is
    * Use JSDoc format with @param and @return.
    */
-  function exampleFunction1() {
-    /* SOME CODE */
+  async function getHeaderFooter() {
+    try {
+      let resp = await fetch("./includes/header.html");
+      await statusCheck(resp);
+      resp = await resp.text();
+      qs("header").innerHTML = resp;
+      resp = await fetch("./includes/footer.html");
+      await statusCheck(resp);
+      resp = await resp.text();
+      qs("footer").innerHTML = resp;
+    } catch (error) {
+
+    }
   }
 
   /**

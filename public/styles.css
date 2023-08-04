@@ -1,0 +1,110 @@
+body {
+  font-family: 'Rubik', sans-serif;
+  min-height: 100%;
+  margin-bottom: 20rem;
+  clear: both;
+}
+
+img {
+  width: 100px;
+}
+
+a {
+  text-decoration: none;
+}
+
+main {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.row {
+  justify-content: center;
+}
+
+/* Nav start */
+#nav-middle h1 {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+header .container-fluid {
+  border-bottom: solid #596032 2em;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.nav-link, .nav-link:hover {
+  color: black;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.nav-item {
+  margin-left: 10px;
+  margin-right: 10px;
+  color: #949555;
+}
+
+.nav-account {
+  flex-direction: row;
+}
+
+#nav-middle {
+  text-align: center;
+}
+
+#nav-middle .navbar-collapse {
+  justify-content: space-evenly;
+}
+
+#navbar {
+  margin: 0;
+}
+/* Nav end */
+
+/* Footer start */
+footer {
+  background-color: #596032;
+  color: white;
+  margin: 0;
+  font-size: 14pt;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+footer i {
+  color: white;
+}
+
+footer h2 {
+  font-size: 36pt;
+  text-align: center;
+  font-family: 'Dancing Script', cursive;
+}
+
+.bottom-footer {
+  background-color: #34381f;
+}
+
+.foot-pl {
+  padding-left: 1.5rem;
+}
+/* Footer end */

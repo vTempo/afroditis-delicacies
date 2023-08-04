@@ -1,0 +1,14 @@
+main {
+  margin-top: 2rem;
+}
+
+#contact-container > div {
+  margin: 2rem;
+  padding: 0;
+}
+
+#contact-container > div p {
+  padding: 0.5rem;
+  font-size: 13pt;
+  text-align: center;
+}
