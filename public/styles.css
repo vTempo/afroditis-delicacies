@@ -1,7 +1,6 @@
 body {
   font-family: 'Rubik', sans-serif;
   min-height: 100%;
-  margin-bottom: 20rem;
   clear: both;
 }
 
@@ -14,7 +13,7 @@ a {
 }
 
 main {
-  padding: 1rem;
+  padding-bottom: 1rem;
   text-align: center;
   font-weight: 500;
 }
@@ -77,17 +76,20 @@ header .container-fluid {
 }
 /* Nav end */
 
+.carousel-inner {
+  width: 100%;
+  height: 300px;
+}
+
 /* Footer start */
 footer {
   background-color: #596032;
   color: white;
   margin: 0;
   font-size: 14pt;
-  position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
-  z-index: 0;
 }
 
 footer i {
