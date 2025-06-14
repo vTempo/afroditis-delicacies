@@ -32,7 +32,7 @@ app.use(cookieParser());
  */
 async function getDBConnection() {
   const db = await sqlite.open({
-    filename: "vehicles.db",
+    filename: "deli.db",
     driver: sqlite3.Database
   });
   return db;
