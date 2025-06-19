@@ -1,0 +1,50 @@
+/* Header Styles */
+header .container-fluid {
+    border-bottom: solid var(--primary-green) 2em;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.nav-link,
+.nav-link:hover {
+    color: black;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+}
+
+.nav-item {
+    margin-left: 10px;
+    margin-right: 10px;
+    color: var(--secondary-green);
+}
+
+.nav-account {
+    flex-direction: row;
+    display: flex;
+}
+
+#nav-middle {
+    text-align: center;
+}
+
+#nav-middle h1 {
+    font-family: 'Cormorant Garamond', serif;
+}
+
+#nav-middle .navbar-collapse {
+    justify-content: space-evenly;
+    display: flex;
+}
+
+#navbar {
+    margin: 0;
+}
