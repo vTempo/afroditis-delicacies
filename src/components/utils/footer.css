@@ -1,0 +1,87 @@
+/* Footer Styles */
+footer {
+    background-color: var(--primary-green);
+    color: white;
+    margin: 0;
+    font-size: 14pt;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 2rem 0 0 0;
+}
+
+footer i {
+    color: white;
+}
+
+footer h2 {
+    font-size: 36pt;
+    text-align: center;
+    font-family: 'Dancing Script', cursive;
+    margin-bottom: 2rem;
+}
+
+footer h4 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+}
+
+.bottom-footer {
+    background-color: var(--dark-green);
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+.foot-pl {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding: 0 15px;
+}
+
+.social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.social-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.social-link:hover {
+    text-decoration: underline;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    footer h2 {
+        font-size: 28pt;
+    }
+}

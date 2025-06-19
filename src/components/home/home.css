@@ -1,0 +1,126 @@
+/* Home Page Specific Styles */
+.carousel-inner {
+    width: 100%;
+    height: 300px;
+}
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 2;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.slide-container {
+    display: flex;
+    transition: transform 0.7s ease-in-out;
+}
+
+.slide-item {
+    min-width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Featured sections */
+.featured-section {
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.featured-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    padding: 0 2rem;
+}
+
+.featured-item {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.featured-item:hover {
+    transform: translateY(-5px);
+}
+
+.featured-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.featured-item-content {
+    padding: 1.5rem;
+}
+
+.featured-item h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-green);
+}
+
+.featured-item p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Call to action */
+.cta-section {
+    background: var(--primary-green);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cta-button {
+    background: white;
+    color: var(--primary-green);
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+.cta-button:hover {
+    background: #f8f8f8;
+    transform: translateY(-2px);
+}
