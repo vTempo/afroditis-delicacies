@@ -1,4 +1,6 @@
 import React from 'react';
+import Header from '@/assets/header.png';
+import Footer from '@/assets/footer.png';
 
 
 const Home: React.FC = () => {
