@@ -3,11 +3,7 @@ header {
     background-color: var(--warm-white);
     padding: 1rem 0 0 0;
     position: relative;
-}
-
-header .container-fluid {
-    border-bottom: solid var(--primary-green) 3px;
-    padding-bottom: 1rem;
+    border-bottom: solid var(--primary-green) 2.5rem;
 }
 
 .navbar {
@@ -17,6 +13,7 @@ header .container-fluid {
     align-items: center;
     margin-left: 5%;
     margin-right: 5%;
+    margin-bottom: 1%;
     padding: 0;
 }
 
@@ -27,34 +24,10 @@ header .container-fluid {
     gap: 1rem;
 }
 
-.logo-circle {
-    width: 60px;
-    height: 60px;
-    border: 2px solid var(--primary-green);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--warm-white);
-    position: relative;
-}
-
-.logo-circle::before {
-    content: '';
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    border: 1px solid var(--secondary-green);
-    border-radius: 50%;
-}
-
-.logo-circle .logo-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 600;
-    font-size: 18px;
-    color: var(--primary-green);
-    text-align: center;
-    line-height: 1;
+.navbar-brand img {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
 }
 
 /* Center section with title and navigation */
@@ -146,8 +119,8 @@ header .container-fluid {
 /* User icon and cart icon styles */
 .user-icon,
 .cart-icon {
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     fill: currentColor;
 }
 
@@ -170,20 +143,6 @@ header .container-fluid {
 
     .nav-account {
         justify-content: center;
-    }
-
-    .logo-circle {
-        width: 50px;
-        height: 50px;
-    }
-
-    .logo-circle::before {
-        width: 40px;
-        height: 40px;
-    }
-
-    .logo-circle .logo-text {
-        font-size: 14px;
     }
 }
 

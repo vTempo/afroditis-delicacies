@@ -1,5 +1,6 @@
 import React from 'react';
 import './header.css';
+import logo from '../../img/logo_t.png';
 
 const Header: React.FC = () => {
     return (
@@ -7,9 +8,7 @@ const Header: React.FC = () => {
             <nav className="navbar">
                 {/* Left side - Logo */}
                 <div className="navbar-brand">
-                    <div className="logo-circle">
-                        <div className="logo-text">AD</div>
-                    </div>
+                    <img src={logo.src} alt="Afroditi's Logo" />
                 </div>
 
                 {/* Center - Title and Navigation */}
