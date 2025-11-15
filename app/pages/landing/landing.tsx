@@ -5,7 +5,7 @@ import "./landing.css"
 
 export function Landing() {
   return (
-    <div className="min-h-screen font-sans">
+    <div className="min-h-screen bg-white font-sans">
       <Header />
       <main className="w-full">
 
