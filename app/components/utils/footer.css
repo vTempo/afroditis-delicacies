@@ -7,55 +7,92 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-  padding: 3rem 0 0 0;
-  margin-top: 4rem;
+  padding: 1rem 0 0 0;
+  /* Increased from 0.75rem for more space at top */
+  margin-top: auto;
 }
 
 footer i {
   color: white;
 }
 
-/* Center section with script title */
-footer h2 {
-  font-size: 3rem;
-  text-align: center;
-  font-family: var(--font-dancing), cursive;
-  font-weight: 500;
-  margin-bottom: 2rem;
-  color: white;
-  font-style: italic;
-}
-
 /* Three column layout */
 .footer-content {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 5%;
 }
 
 .footer-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 3rem;
-  margin-bottom: 2rem;
+  /* Increased from 2rem for more spacing between sections */
+  margin-bottom: 1rem;
+  /* Increased from 0.5rem for more space before dark section */
+  font-size: 1.1rem;
 }
 
 .footer-column {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Center column with Greek Homemade Food title */
+.footer-column:nth-child(2) h2 {
+  font-size: 2.2rem;
+  /* Increased from 2rem */
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.4;
+  color: white;
+  font-style: italic;
+  text-transform: none;
 }
 
 .footer-column h4 {
-  margin-bottom: 1rem;
-  font-weight: 600;
-  font-family: var(--font-cormorant), serif;
-  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+  margin-top: 0;
+  font-weight: 400;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  /* Increased from 1.3rem */
+  font-style: italic;
   color: white;
+  line-height: 1.4;
 }
 
 .footer-column p {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+  margin-top: 0;
   color: rgba(255, 255, 255, 0.9);
   font-family: var(--font-cormorant), serif;
+  font-size: 1.2rem;
+  /* Increased from 1.1rem */
+  line-height: 1.4;
+}
+
+.footer-column a {
+  color: white;
+  text-decoration: none;
+  font-family: 'Cormorant Garamond', serif;
+  transition: color 0.3s ease;
+  line-height: 1.4;
+  font-size: 1.2rem;
+  /* Added explicit size for links */
+}
+
+.footer-column a:hover {
+  color: var(--light-green);
+  text-decoration: underline;
 }
 
 /* Social links styling */
@@ -63,7 +100,7 @@ footer h2 {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .social-link {
@@ -73,6 +110,9 @@ footer h2 {
   align-items: center;
   gap: 0.5rem;
   font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  /* Increased from 1.1rem to match other text */
+  line-height: 1.4;
   transition: color 0.3s ease;
 }
 
@@ -102,64 +142,71 @@ footer h2 {
   color: white;
 }
 
-.email-section a {
+.email-section p {
   color: white;
-  text-decoration: none;
   font-family: 'Cormorant Garamond', serif;
-  transition: color 0.3s ease;
-}
-
-.email-section a:hover {
-  color: var(--light-green);
+  font-size: 1.2rem;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* Bottom footer with copyright */
 .bottom-footer {
   background-color: var(--dark-green);
   text-align: center;
-  padding: 1rem 0;
-  margin-top: 2rem;
+  padding: 0.6rem 0;
+  /* Increased from 0.4rem for more breathing room */
+  margin-top: 0;
+  /* Keep at 0 since we increased margin-bottom above */
 }
 
 .bottom-footer p {
   margin: 0;
   color: rgba(255, 255, 255, 0.8);
   font-family: 'Cormorant Garamond', serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  /* Increased from 0.9rem */
+  line-height: 1.4;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .footer-columns {
-      grid-template-columns: 1fr;
-      gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    /* Reduced from 2rem */
   }
 
   footer h2 {
-      font-size: 2.5rem;
+    font-size: 2rem;
+    /* Reduced from 2.5rem */
   }
 
   .social-links {
-      flex-direction: column;
-      align-items: center;
+    flex-direction: column;
+    align-items: center;
   }
 
   .footer-content {
-      padding: 0 1rem;
+    padding: 0 1rem;
   }
 }
 
 @media (max-width: 480px) {
   footer {
-      padding: 2rem 0 0 0;
+    padding: 1rem 0 0 0;
+    /* Reduced from 2rem */
   }
 
   footer h2 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    /* Reduced from 2rem */
+    margin-bottom: 1rem;
+    /* Reduced from 1.5rem */
   }
 
   .footer-columns {
-      gap: 1.5rem;
+    gap: 1rem;
+    /* Reduced from 1.5rem */
   }
 }
