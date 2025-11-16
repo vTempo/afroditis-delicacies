@@ -25,9 +25,6 @@ const Header: React.FC = () => {
                             <div className="nav-item">
                                 <a href="/about" className="nav-link">About Us</a>
                             </div>
-                            <div className="nav-item">
-                                <a href="/contact" className="nav-link">Contact Us</a>
-                            </div>
                         </div>
                     </div>
                 </div>
