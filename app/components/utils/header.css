@@ -112,7 +112,7 @@ header {
 }
 
 .nav-account .nav-link:hover {
-  background-color: var(--light-green);
+  /* background-color: var(--light-green); */
   color: var(--dark-green);
 }
 
