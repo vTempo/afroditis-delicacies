@@ -5,9 +5,9 @@ import "./landing.css"
 
 export function Landing() {
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans flex flex-col">
       <Header />
-      <main className="w-full">
+      <main className="w-full flex-grow">
 
       </main>
       <Footer />
