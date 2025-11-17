@@ -2,6 +2,7 @@ import React from "react";
 import Header from "../components/utils/header";
 import Footer from "../components/utils/footer";
 import "../styles/about.css";
+import afroditiImage from '../img/afroditi.jpg';
 
 export default function About() {
     return (
@@ -24,10 +25,6 @@ export default function About() {
                                 Over the years, her food has found its way into the routines and celebrations of people all across the region. Orders continue to grow each year, mostly through personal recommendations and the genuine connection customers feel to her cooking. Her presence on social media has helped her reach even more food lovers who appreciate honest, homemade meals.
                             </p>
 
-                            <p>
-                                A special moment for Afroditi and her customers came when she was invited for a live interview on the Greek TV channel SKAI. She spoke about her journey, her cooking, and the joy of helping people in Washington experience the comfort and nostalgia of real Greek flavors.
-                            </p>
-
                             <p className="about-closing">
                                 Afroditi's Delicacies is more than a catering service. It is a taste of tradition, a reminder of home, and a celebration of the dishes that bring people together.
                             </p>
@@ -36,7 +33,7 @@ export default function About() {
                         {/* Right side - Image */}
                         <div className="about-image">
                             <img
-                                src="/img/afroditi.png"
+                                src={afroditiImage}
                                 alt="Afroditi Kritikou"
                             />
                         </div>
