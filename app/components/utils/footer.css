@@ -8,7 +8,6 @@ footer {
   bottom: 0;
   width: 100%;
   padding: 1rem 0 0 0;
-  /* Increased from 0.75rem for more space at top */
   margin-top: auto;
 }
 
@@ -16,7 +15,6 @@ footer i {
   color: white;
 }
 
-/* Three column layout */
 .footer-content {
   max-width: 100%;
   margin: 0 auto;
@@ -28,9 +26,7 @@ footer i {
   justify-content: space-between;
   align-items: center;
   gap: 3rem;
-  /* Increased from 2rem for more spacing between sections */
   margin-bottom: 1rem;
-  /* Increased from 0.5rem for more space before dark section */
   font-size: 1.1rem;
 }
 
@@ -44,10 +40,8 @@ footer i {
   flex: 1;
 }
 
-/* Center column with Greek Homemade Food title */
 .footer-column:nth-child(2) h2 {
   font-size: 2.2rem;
-  /* Increased from 2rem */
   font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   letter-spacing: 1px;
@@ -64,7 +58,6 @@ footer i {
   font-weight: 400;
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.4rem;
-  /* Increased from 1.3rem */
   font-style: italic;
   color: white;
   line-height: 1.4;
@@ -76,7 +69,6 @@ footer i {
   color: rgba(255, 255, 255, 0.9);
   font-family: var(--font-cormorant), serif;
   font-size: 1.2rem;
-  /* Increased from 1.1rem */
   line-height: 1.4;
 }
 
@@ -87,7 +79,6 @@ footer i {
   transition: color 0.3s ease;
   line-height: 1.4;
   font-size: 1.2rem;
-  /* Added explicit size for links */
 }
 
 .footer-column a:hover {
@@ -95,7 +86,6 @@ footer i {
   text-decoration: underline;
 }
 
-/* Social links styling */
 .social-links {
   display: flex;
   justify-content: center;
@@ -111,7 +101,6 @@ footer i {
   gap: 0.5rem;
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.2rem;
-  /* Increased from 1.1rem to match other text */
   line-height: 1.4;
   transition: color 0.3s ease;
 }
@@ -127,7 +116,6 @@ footer i {
   fill: currentColor;
 }
 
-/* Email section */
 .email-section {
   text-align: center;
   margin: 2rem 0;
@@ -150,14 +138,11 @@ footer i {
   line-height: 1.4;
 }
 
-/* Bottom footer with copyright */
 .bottom-footer {
   background-color: var(--dark-green);
   text-align: center;
   padding: 0.6rem 0;
-  /* Increased from 0.4rem for more breathing room */
   margin-top: 0;
-  /* Keep at 0 since we increased margin-bottom above */
 }
 
 .bottom-footer p {
@@ -165,21 +150,17 @@ footer i {
   color: rgba(255, 255, 255, 0.8);
   font-family: 'Cormorant Garamond', serif;
   font-size: 1rem;
-  /* Increased from 0.9rem */
   line-height: 1.4;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .footer-columns {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-    /* Reduced from 2rem */
   }
 
   footer h2 {
     font-size: 2rem;
-    /* Reduced from 2.5rem */
   }
 
   .social-links {
@@ -195,18 +176,14 @@ footer i {
 @media (max-width: 480px) {
   footer {
     padding: 1rem 0 0 0;
-    /* Reduced from 2rem */
   }
 
   footer h2 {
     font-size: 1.75rem;
-    /* Reduced from 2rem */
     margin-bottom: 1rem;
-    /* Reduced from 1.5rem */
   }
 
   .footer-columns {
     gap: 1rem;
-    /* Reduced from 1.5rem */
   }
 }
