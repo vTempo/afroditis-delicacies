@@ -1,0 +1,286 @@
+/* Auth Modal Overlay */
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Container */
+.auth-modal-container {
+  background-color: white;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+
+  to {
+      opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+      transform: translateX(100%);
+  }
+
+  to {
+      transform: translateX(0);
+  }
+}
+
+/* Modal Header */
+.auth-modal-header {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e5e5e5;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark);
+  transition: color 0.2s ease;
+}
+
+.back-button:hover {
+  color: var(--primary-green);
+}
+
+.auth-modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+/* Modal Content */
+.auth-modal-content {
+  flex: 1;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+}
+
+/* Auth Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+  text-transform: uppercase;
+}
+
+.required {
+  color: #d32f2f;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Cormorant Garamond', serif;
+  transition: border-color 0.2s ease;
+  background-color: white;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-green);
+}
+
+.form-group input::placeholder {
+  color: #999;
+}
+
+/* Password Input Wrapper */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: var(--primary-green);
+}
+
+/* Forgot Password */
+.forgot-password {
+  text-align: right;
+  margin-top: -0.5rem;
+}
+
+.forgot-password a {
+  color: var(--primary-green);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-family: 'Cormorant Garamond', serif;
+  transition: color 0.2s ease;
+}
+
+.forgot-password a:hover {
+  color: var(--dark-green);
+  text-decoration: underline;
+}
+
+/* Submit Button */
+.submit-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-green);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.submit-button:hover {
+  background-color: var(--dark-green);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 126, 63, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Auth Toggle */
+.auth-toggle {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.auth-toggle p {
+  color: var(--text-medium);
+  font-size: 0.95rem;
+  font-family: 'Cormorant Garamond', serif;
+  margin: 0;
+}
+
+.toggle-link {
+  background: none;
+  border: none;
+  color: var(--primary-green);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.95rem;
+  font-family: 'Cormorant Garamond', serif;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.toggle-link:hover {
+  color: var(--dark-green);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auth-modal-container {
+      max-width: 100%;
+  }
+
+  .auth-modal-content {
+      padding: 1.5rem 1rem;
+  }
+
+  .auth-modal-header {
+      padding: 1rem 1rem 0.75rem 1rem;
+  }
+
+  .auth-modal-title {
+      font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="password"] {
+      font-size: 0.95rem;
+      padding: 0.75rem;
+  }
+
+  .submit-button {
+      padding: 0.875rem;
+      font-size: 0.95rem;
+  }
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}

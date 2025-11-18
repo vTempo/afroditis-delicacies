@@ -1,6 +1,7 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-import { Landing } from "../pages/landing/landing";
+import Header from "../components/utils/header";
+import Footer from "../components/utils/footer";
+import "../styles/home.css"
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -10,6 +11,13 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Home() {
-  // return <Welcome />;
-  return <Landing />;
+  return (
+    <div className="min-h-screen bg-white font-sans flex flex-col">
+      <Header />
+      <main className="w-full flex-grow">
+
+      </main>
+      <Footer />
+    </div>
+  )
 }
