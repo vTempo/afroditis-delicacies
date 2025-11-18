@@ -3,14 +3,14 @@
 .about-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 4rem 5%;
+    padding: 2rem 5%;
     background-color: var(--warm-white);
 }
 
 .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 3rem;
     align-items: center;
 }
 
@@ -30,17 +30,17 @@
 
 .about-text p {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.2rem;
-    line-height: 1.8;
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--text-medium);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     text-align: justify;
 }
 
 .about-text p.about-closing {
     font-weight: 500;
     color: var(--text-dark);
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     font-style: italic;
 }
 
@@ -54,7 +54,7 @@
 
 .about-image img {
     width: 100%;
-    max-width: 500px;
+    max-width: 400px;
     height: auto;
     border-radius: 12px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
@@ -73,7 +73,7 @@
     }
 
     .about-text p {
-        font-size: 1.15rem;
+        font-size: 0.95rem;
     }
 }
 

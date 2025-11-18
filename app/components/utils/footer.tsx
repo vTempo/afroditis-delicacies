@@ -34,11 +34,7 @@ const Footer: React.FC = () => {
                     {/* Email Us column */}
                     <div className="footer-column">
                         <h4>Email Us:</h4>
-                        <p>
-                            <a href="mailto:AfroditiSDeli@outlook.com">
-                                AfroditiSDeli@outlook.com
-                            </a>
-                        </p>
+                        <p>AfroditiSDeli@outlook.com</p>
                     </div>
                 </div>
             </div>
