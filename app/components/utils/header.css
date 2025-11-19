@@ -111,9 +111,18 @@ header {
   transition: background-color 0.3s ease;
 }
 
-.nav-account .nav-link:hover {
+.nav-account .nav-link:hover .nav-button:hover {
   /* background-color: var(--light-green); */
   color: var(--dark-green);
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
 }
 
 /* User icon and cart icon styles */

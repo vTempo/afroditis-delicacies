@@ -8,6 +8,7 @@ const Header: React.FC = () => {
     const [isAccMenuOpen, setIsAccMenuOpen] = useState(false);
 
     const openAccMenu = () => {
+        console.log("opening");
         setIsAccMenuOpen(true);
         // Prevent body scroll when modal is open
         document.body.classList.add('modal-open');
