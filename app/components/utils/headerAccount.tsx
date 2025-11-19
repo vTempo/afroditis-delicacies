@@ -50,7 +50,7 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="auth-modal-overlay" onClick={onClose}>
-      { !user ? (
+      { user ? (
         <div className="auth-modal-container" onClick={(e) => e.stopPropagation()}>
           <div className="auth-modal-header">
             <button className="back-button" onClick={onClose} aria-label="Close">
