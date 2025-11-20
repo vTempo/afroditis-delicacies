@@ -17,84 +17,84 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Home() {
-    // Shuffle array function to randomize image order
-    const shuffleArray = <T,>(array: T[]): T[] => {
-      const shuffled = [...array];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    };
+  // Shuffle array function to randomize image order
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
-    // Food images for carousel - using imported images
-    const baseFoodImages = [
-      { url: pastitsioImage, alt: "Delicious Pastitsio", title: "Pastitsio" },
-      { url: tyropitaImage, alt: "Cheese Pie", title: "Tyropita" },
-      { url: tritipImage, alt: "Tri-Tip", title: "Tri-Tip" },
-      // Add more images here as you get them
-      { url: pastitsioImage, alt: "Traditional Greek Moussaka", title: "Moussaka" },
-      { url: tyropitaImage, alt: "Fresh Spanakopita", title: "Spanakopita" },
-      { url: tritipImage, alt: "Sweet Baklava", title: "Baklava" },
-    ];
+  // Food images for carousel - using imported images
+  const baseFoodImages = [
+    { url: pastitsioImage, alt: "Delicious Pastitsio", title: "Pastitsio" },
+    { url: tyropitaImage, alt: "Cheese Pie", title: "Tyropita" },
+    { url: tritipImage, alt: "Tri-Tip", title: "Tri-Tip" },
+    // Add more images here as you get them
+    { url: pastitsioImage, alt: "Traditional Greek Moussaka", title: "Moussaka" },
+    { url: tyropitaImage, alt: "Fresh Spanakopita", title: "Spanakopita" },
+    { url: tritipImage, alt: "Sweet Baklava", title: "Baklava" },
+  ];
 
-    // Randomize images on component mount
-    const [foodImages] = useState(() => shuffleArray(baseFoodImages));
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  // Randomize images on component mount
+  const [foodImages] = useState(() => shuffleArray(baseFoodImages));
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-    const reviews = [
-      {
-        stars: 5,
-        title: "Amazing spanakopita",
-        text: "Spanakopita is amazingly delicious, and you get the real taste of Greece, with traditional handmade fyllo!! Afroditi's Delicacies also delivered it warm at my place. I would highly recommend her menu for any occasion with your beloved ones... because you just have to share this kind of food with the ones you love!",
-        author: "Eleni"
-      },
-      {
-        stars: 5,
-        title: "Loved it!",
-        text: "Amazing Baklava. The best I have ever had.",
-        author: "Harsh"
-      },
-      {
-        stars: 5,
-        title: "Great value – Personalised menus",
-        text: "Amazing food!!! Well presented.. people loved it!",
-        author: "Priti"
-      }
-    ];
+  const reviews = [
+    {
+      stars: 5,
+      title: "Amazing spanakopita",
+      text: "Spanakopita is amazingly delicious, and you get the real taste of Greece, with traditional handmade fyllo!! Afroditi's Delicacies also delivered it warm at my place. I would highly recommend her menu for any occasion with your beloved ones... because you just have to share this kind of food with the ones you love!",
+      author: "Eleni"
+    },
+    {
+      stars: 5,
+      title: "Loved it!",
+      text: "Amazing Baklava. The best I have ever had.",
+      author: "Harsh"
+    },
+    {
+      stars: 5,
+      title: "Great value – Personalised menus",
+      text: "Amazing food!!! Well presented.. people loved it!",
+      author: "Priti"
+    }
+  ];
 
-    // Auto-advance carousel every 4 seconds
-    useEffect(() => {
-      if (!isAutoPlaying) return;
+  // Auto-advance carousel every 4 seconds
+  useEffect(() => {
+    if (!isAutoPlaying) return;
 
-      const interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % foodImages.length);
-      }, 4000); // 4 seconds
-
-      return () => clearInterval(interval);
-    }, [isAutoPlaying, foodImages.length]);
-
-    const nextSlide = () => {
+    const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % foodImages.length);
-      setIsAutoPlaying(false);
-      // Resume auto-play after 10 seconds
-      setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
+    }, 4000); // 4 seconds
 
-    const prevSlide = () => {
-      setCurrentSlide((prev) => (prev - 1 + foodImages.length) % foodImages.length);
-      setIsAutoPlaying(false);
-      // Resume auto-play after 10 seconds
-      setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, foodImages.length]);
 
-    const goToSlide = (index: number) => {
-      setCurrentSlide(index);
-      setIsAutoPlaying(false);
-      // Resume auto-play after 10 seconds
-      setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % foodImages.length);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + foodImages.length) % foodImages.length);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+    // Resume auto-play after 10 seconds
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col">
