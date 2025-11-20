@@ -1,3 +1,13 @@
+/* Color Variables */
+:root {
+  --primary-green: rgba(107, 126, 63, 1);
+  --dark-green: rgba(90, 106, 53, 1);
+  --light-green: rgba(156, 175, 108, 1);
+  --warm-white: #f9f9f5;
+  --text-dark: #2c2c2c;
+  --text-medium: #5c5c5c;
+}
+
 /* Auth Modal Overlay */
 .auth-modal-overlay {
   position: fixed;
@@ -8,16 +18,19 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Modal Container */
+/* Modal Container - Dynamic Height */
 .auth-modal-container {
   background-color: white;
   width: 100%;
   max-width: 500px;
-  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  height: auto;
   overflow-y: auto;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   animation: slideInRight 0.3s ease-out;
@@ -90,6 +103,159 @@
   overflow-y: auto;
 }
 
+/* Google Sign-In Button */
+.google-signin-button {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background-color: white;
+  border: 2px solid #dadce0;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.google-signin-button:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.google-signin-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.25rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.divider span {
+  padding: 0 1rem;
+  color: var(--text-medium);
+  font-size: 0.9rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Profile Menu */
+.profile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  text-align: left;
+}
+
+.profile-menu-item:hover {
+  background-color: rgba(107, 126, 63, 0.1);
+  border-color: var(--primary-green);
+  transform: translateX(4px);
+}
+
+.menu-icon {
+  flex-shrink: 0;
+  color: var(--primary-green);
+}
+
+.profile-menu-item span {
+  flex-grow: 1;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-medium);
+}
+
+/* Empty States */
+.favorites-view,
+.order-history-view {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.empty-state {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--text-medium);
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--text-medium);
+  opacity: 0.7;
+}
+
+/* Settings Form */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.settings-section:last-of-type {
+  border-bottom: none;
+}
+
+.settings-section h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
 /* Auth Form */
 .auth-form {
   display: flex;
@@ -110,6 +276,7 @@
   margin-bottom: 0.5rem;
   color: var(--text-dark);
   text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .required {
@@ -118,7 +285,8 @@
 
 .form-group input[type="text"],
 .form-group input[type="email"],
-.form-group input[type="password"] {
+.form-group input[type="password"],
+.form-group input[type="tel"] {
   width: 100%;
   padding: 0.875rem;
   border: 1px solid #d0d0d0;
@@ -138,6 +306,13 @@
   color: #999;
 }
 
+.password-hint {
+  font-size: 0.8rem;
+  color: var(--text-medium);
+  margin-top: 0.25rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
 /* Password Input Wrapper */
 .password-input-wrapper {
   position: relative;
@@ -146,6 +321,7 @@
 }
 
 .password-input-wrapper input {
+  width: 100%;
   padding-right: 3rem;
 }
 
@@ -283,7 +459,7 @@
 .user-info {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .user-info h3 {
@@ -309,6 +485,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .verification-banner p {
@@ -338,75 +515,6 @@
 .resend-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* Verified Badge */
-.verified-badge {
-  display: inline-block;
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* Account Sections */
-.account-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.account-section {
-  padding: 1rem;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-}
-
-.account-section h4 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 0.75rem 0;
-}
-
-.account-section p {
-  color: var(--text-medium);
-  font-size: 0.95rem;
-  margin: 0.5rem 0;
-  font-family: 'Cormorant Garamond', serif;
-}
-
-.account-section p strong {
-  color: var(--text-dark);
-  font-weight: 600;
-}
-
-/* Status Badge */
-.status-badge {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-suspended {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.status-pending_verification {
-  background-color: #fff3e0;
-  color: #e65100;
 }
 
 /* Logout Button */
@@ -461,7 +569,8 @@
 
   .form-group input[type="text"],
   .form-group input[type="email"],
-  .form-group input[type="password"] {
+  .form-group input[type="password"],
+  .form-group input[type="tel"] {
     font-size: 0.95rem;
     padding: 0.75rem;
   }
@@ -470,6 +579,10 @@
   .logout-button {
     padding: 0.875rem;
     font-size: 0.95rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -5,6 +5,7 @@ import { auth } from "../../firebase/firebase";
 import {
   registerUser,
   loginUser,
+  signInWithGoogle,
   logoutUser,
   resetPassword,
   resendVerificationEmail,
@@ -25,6 +26,7 @@ interface AuthContextType {
   // Auth functions
   register: (formData: AuthFormData) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   resendVerification: () => Promise<void>;
@@ -83,6 +85,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string): Promise<void> {
     try {
       await loginUser(email, password);
+      // User state will be updated by onAuthStateChanged
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Login with Google
+  async function loginWithGoogle(): Promise<void> {
+    try {
+      await signInWithGoogle();
       // User state will be updated by onAuthStateChanged
     } catch (error) {
       throw error;
@@ -185,6 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     register,
     login,
+    loginWithGoogle,
     logout,
     sendPasswordReset,
     resendVerification,
