@@ -111,11 +111,6 @@ header {
   transition: background-color 0.3s ease;
 }
 
-.nav-account .nav-link:hover .nav-button:hover {
-  /* background-color: var(--light-green); */
-  color: var(--dark-green);
-}
-
 .nav-button {
   background: none;
   border: none;
@@ -130,39 +125,44 @@ header {
 .cart-icon {
   width: 40px;
   height: 40px;
-  fill: currentColor;
+  fill: var(--primary-green);
+}
+
+.nav-button:hover .user-icon,
+.nav-link:hover .cart-icon {
+  fill: var(--dark-green);
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .navbar {
-      flex-direction: column;
-      gap: 1rem;
-      margin-left: 2%;
-      margin-right: 2%;
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 2%;
+    margin-right: 2%;
   }
 
   #nav-middle h1 {
-      font-size: 2rem;
+    font-size: 2rem;
   }
 
   #nav-middle .navbar-collapse {
-      gap: 1rem;
+    gap: 1rem;
   }
 
   .nav-account {
-      justify-content: center;
+    justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
   #nav-middle .navbar-collapse {
-      flex-direction: column;
-      gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .nav-account {
-      flex-direction: column;
-      gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
