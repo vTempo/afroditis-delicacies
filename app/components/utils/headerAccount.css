@@ -28,21 +28,21 @@
 /* Animations */
 @keyframes fadeIn {
   from {
-      opacity: 0;
+    opacity: 0;
   }
 
   to {
-      opacity: 1;
+    opacity: 1;
   }
 }
 
 @keyframes slideInRight {
   from {
-      transform: translateX(100%);
+    transform: translateX(100%);
   }
 
   to {
-      transform: translateX(0);
+    transform: translateX(0);
   }
 }
 
@@ -204,14 +204,19 @@
   font-family: 'Cormorant Garamond', serif;
 }
 
-.submit-button:hover {
+.submit-button:hover:not(:disabled) {
   background-color: var(--dark-green);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(107, 126, 63, 0.3);
 }
 
-.submit-button:active {
+.submit-button:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Auth Toggle */
@@ -242,26 +247,213 @@
   padding: 0;
 }
 
-.toggle-link:hover {
+.toggle-link:hover:not(:disabled) {
   color: var(--dark-green);
+}
+
+.toggle-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Error and Success Messages */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 0.875rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: 'Cormorant Garamond', serif;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.875rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: 'Cormorant Garamond', serif;
+  margin-bottom: 1rem;
+  border-left: 4px solid #2e7d32;
+}
+
+/* User Info (Logged In View) */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.user-info h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.user-email {
+  color: var(--text-medium);
+  font-size: 0.95rem;
+  margin-top: -0.5rem;
+}
+
+/* Verification Banner */
+.verification-banner {
+  background-color: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 4px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.verification-banner p {
+  color: #e65100;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.resend-button {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.resend-button:hover:not(:disabled) {
+  background-color: #f57c00;
+}
+
+.resend-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Verified Badge */
+.verified-badge {
+  display: inline-block;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Account Sections */
+.account-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.account-section {
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.account-section h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 0.75rem 0;
+}
+
+.account-section p {
+  color: var(--text-medium);
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.account-section p strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-suspended {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.status-pending_verification {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+/* Logout Button */
+.logout-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  color: var(--text-dark);
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.logout-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+}
+
+.logout-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .auth-modal-container {
-      max-width: 100%;
+    max-width: 100%;
   }
 
   .auth-modal-content {
-      padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem;
   }
 
   .auth-modal-header {
-      padding: 1rem 1rem 0.75rem 1rem;
+    padding: 1rem 1rem 0.75rem 1rem;
   }
 
   .auth-modal-title {
-      font-size: 1.5rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -270,13 +462,14 @@
   .form-group input[type="text"],
   .form-group input[type="email"],
   .form-group input[type="password"] {
-      font-size: 0.95rem;
-      padding: 0.75rem;
+    font-size: 0.95rem;
+    padding: 0.75rem;
   }
 
-  .submit-button {
-      padding: 0.875rem;
-      font-size: 0.95rem;
+  .submit-button,
+  .logout-button {
+    padding: 0.875rem;
+    font-size: 0.95rem;
   }
 }
 
