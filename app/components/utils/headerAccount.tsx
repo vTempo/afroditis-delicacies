@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/authContext/authContext";
+import AddressAutocomplete from "../addressAutocomplete/AddressAutocomplete";
+import type { AddressDetails } from "../../services/addressService";
 import "./headerAccount.css";
+
+// Mapbox access token
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoiaWxpYXNrbGFkYWtpcyIsImEiOiJjbWljZHYyc3MwcmRsMnNvazNnd2ozM201In0.Ix4wyDanhQXzhU1Qm14pFA';
 
 interface HeaderAccountProps {
   isOpen: boolean;
@@ -40,6 +45,24 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
     confirmPassword: ''
   });
 
+  // Load user profile data into settings when profile is available
+  useEffect(() => {
+    if (userProfile) {
+      setSettingsData({
+        firstName: userProfile.firstName || '',
+        lastName: userProfile.lastName || '',
+        email: user?.email || '',
+        phoneNumber: userProfile.phoneNumber || '',
+        street: userProfile.address?.street || '',
+        city: userProfile.address?.city || '',
+        state: userProfile.address?.state || '',
+        zipCode: userProfile.address?.zipCode || '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    }
+  }, [userProfile, user]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -54,6 +77,17 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
     setSettingsData(prev => ({
       ...prev,
       [name]: value
+    }));
+    setError(null);
+  };
+
+  const handleAddressSelect = (address: AddressDetails) => {
+    setSettingsData(prev => ({
+      ...prev,
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      zipCode: address.zipCode,
     }));
     setError(null);
   };
@@ -73,6 +107,12 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
     if (!isLogin) {
       if (!formData.firstName || !formData.lastName) {
         setError('First name and last name are required');
+        return false;
+      }
+
+      // Phone number is now required for registration
+      if (!formData.phoneNumber || formData.phoneNumber.trim() === '') {
+        setError('Phone number is required');
         return false;
       }
     }
@@ -102,7 +142,7 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          phoneNumber: formData.phoneNumber || undefined
+          phoneNumber: formData.phoneNumber
         });
         setSuccess('Account created! Please check your email to verify your account.');
       }
@@ -397,14 +437,17 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="phoneNumber">Phone Number</label>
+                      <label htmlFor="phoneNumber">
+                        Phone Number <span className="required">*</span>
+                      </label>
                       <input
                         type="tel"
                         id="phoneNumber"
                         name="phoneNumber"
                         value={settingsData.phoneNumber}
                         onChange={handleSettingsChange}
-                        placeholder="(Optional)"
+                        placeholder="(555) 123-4567"
+                        required
                       />
                     </div>
                   </div>
@@ -413,60 +456,28 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                     <h4>Primary Delivery Address</h4>
 
                     <div className="form-group">
-                      <label htmlFor="street">Street Address</label>
-                      <input
-                        type="text"
-                        id="street"
-                        name="street"
-                        value={settingsData.street}
-                        onChange={handleSettingsChange}
-                        placeholder="123 Main St"
+                      <label htmlFor="addressSearch">Search Address</label>
+                      <AddressAutocomplete
+                        onAddressSelect={handleAddressSelect}
+                        initialValue={settingsData.street ?
+                          `${settingsData.street}, ${settingsData.city}, ${settingsData.state} ${settingsData.zipCode}` :
+                          ''}
+                        placeholder="Start typing your address..."
+                        mapboxToken={MAPBOX_TOKEN}
                       />
                     </div>
 
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label htmlFor="city">City</label>
-                        <input
-                          type="text"
-                          id="city"
-                          name="city"
-                          value={settingsData.city}
-                          onChange={handleSettingsChange}
-                          placeholder="Seattle"
-                        />
+                    {settingsData.street && (
+                      <div className="address-preview">
+                        <p><strong>Selected Address:</strong></p>
+                        <p>{settingsData.street}</p>
+                        <p>{settingsData.city}, {settingsData.state} {settingsData.zipCode}</p>
                       </div>
-
-                      <div className="form-group">
-                        <label htmlFor="state">State</label>
-                        <input
-                          type="text"
-                          id="state"
-                          name="state"
-                          value={settingsData.state}
-                          onChange={handleSettingsChange}
-                          placeholder="WA"
-                          maxLength={2}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label htmlFor="zipCode">ZIP Code</label>
-                        <input
-                          type="text"
-                          id="zipCode"
-                          name="zipCode"
-                          value={settingsData.zipCode}
-                          onChange={handleSettingsChange}
-                          placeholder="98101"
-                          maxLength={5}
-                        />
-                      </div>
-                    </div>
+                    )}
                   </div>
 
                   <div className="settings-section">
-                    <h4>Email & Password</h4>
+                    <h4>Account Security</h4>
 
                     <div className="form-group">
                       <label htmlFor="email">Email Address</label>
@@ -564,14 +575,17 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="phoneNumber">Phone Number</label>
+                    <label htmlFor="phoneNumber">
+                      Phone Number <span className="required">*</span>
+                    </label>
                     <input
                       type="tel"
                       id="phoneNumber"
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
-                      placeholder="(Optional)"
+                      placeholder="(555) 123-4567"
+                      required={!isLogin}
                     />
                   </div>
                 </>
@@ -598,42 +612,41 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                 </label>
                 <div className="password-input-wrapper">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder={isLogin ? "Enter your password" : "At least 6 characters"}
+                    placeholder="Enter your password"
                     required
                   />
                   <button
                     type="button"
                     className="password-toggle"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                      <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                       </svg>
                     ) : (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                      <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                       </svg>
                     )}
                   </button>
                 </div>
                 {!isLogin && (
-                  <small className="password-hint">Must include uppercase, number, and special character</small>
+                  <small className="password-hint">
+                    Must be 6+ characters with uppercase, number, and special character
+                  </small>
                 )}
               </div>
 
               {isLogin && (
                 <div className="forgot-password">
-                  <a href="#" onClick={(e) => {
-                    e.preventDefault();
-                    alert('Password reset functionality coming soon!');
-                  }}>
+                  <a href="#" onClick={(e) => { e.preventDefault(); /* Handle forgot password */ }}>
                     Forgot Password?
                   </a>
                 </div>
@@ -681,7 +694,7 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              {loading ? 'Signing in...' : `Continue with Google`}
+              {loading ? 'Signing in...' : 'Continue with Google'}
             </button>
           </div>
         </div>
