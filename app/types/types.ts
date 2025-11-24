@@ -7,6 +7,7 @@ export interface UserProfile {
     displayName: string;
     phoneNumber?: string;
     emailVerified: boolean;
+    role: string;
     photoURL?: string;
     createdAt: Date;
     updatedAt: Date;

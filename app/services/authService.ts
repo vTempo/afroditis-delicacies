@@ -85,6 +85,7 @@ export async function registerUser(formData: AuthFormData): Promise<User> {
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
             accountStatus: 'pending_verification',
+            role: "customer",
             preferences: {
                 emailNotifications: true,
                 orderUpdates: true,
@@ -98,6 +99,7 @@ export async function registerUser(formData: AuthFormData): Promise<User> {
         }
 
         // Save to Firestore
+        console.log(userProfileData);
         await setDoc(doc(db, 'users', user.uid), userProfileData);
 
         // CRITICAL: Send verification email immediately with multiple attempts
@@ -163,6 +165,7 @@ export async function signInWithGoogle(): Promise<User> {
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
                 accountStatus: user.emailVerified ? 'active' : 'pending_verification',
+                role: "customer",
                 preferences: {
                     emailNotifications: true,
                     orderUpdates: true,
