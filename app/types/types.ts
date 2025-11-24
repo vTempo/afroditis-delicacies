@@ -63,3 +63,35 @@ export interface AuthFormData {
     password: string;
     phoneNumber?: string;
 }
+
+
+// Types for menu items and categories
+export interface MenuItem {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    secondPrice?: number; // For items with two sizes (Large/Small)
+    isTopSeller?: boolean;
+    description?: string;
+    imageUrl?: string;
+    available: boolean;
+    order: number; // For sorting items within a category
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface MenuCategory {
+    id: string;
+    name: string;
+    order: number; // For sorting categories
+    hasTwoSizes: boolean; // True for categories like "Traditional Greek Pies" and "Beef Dishes"
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface MenuData {
+    categories: MenuCategory[];
+    items: MenuItem[];
+    menuNote: string;
+}
