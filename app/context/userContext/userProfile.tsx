@@ -7,18 +7,15 @@ export function useUserProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
 
-  console.log("ih");
   useEffect(() => {
-    console.log("in useeffect");
     if (!user) {
       setProfile(null);
       return;
     }
 
     async function loadProfile() {
-      console.log("hiii");
       if (!user) return;
-      console.log("hi");
+
       const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
       if (snap.exists()) {
@@ -29,7 +26,5 @@ export function useUserProfile() {
     loadProfile();
   }, [user]);
 
-  console.log(user);
-  console.log(profile);
   return profile; // contains { email, role, verified, ... }
 }
