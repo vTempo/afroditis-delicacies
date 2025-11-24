@@ -1,0 +1,206 @@
+/* Address Autocomplete Styles */
+.address-autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.address-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.address-input {
+    width: 100%;
+    padding: 0.75rem;
+    padding-right: 2.5rem;
+    /* Space for loading spinner */
+    font-size: 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+    font-family: inherit;
+}
+
+.address-input:focus {
+    outline: none;
+    border-color: rgba(107, 126, 63, 1);
+}
+
+.address-input::placeholder {
+    color: #999;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    animation: rotate 1s linear infinite;
+}
+
+.spinner-circle {
+    stroke: rgba(107, 126, 63, 1);
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+/* Suggestions List */
+.suggestions-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background-color: rgba(107, 126, 63, 0.08);
+}
+
+.location-icon {
+    color: rgba(107, 126, 63, 1);
+    margin-right: 0.75rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.suggestion-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.suggestion-main {
+    font-weight: 500;
+    color: #2c2c2c;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-secondary {
+    font-size: 0.875rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Error Message */
+.address-error {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    color: #c33;
+    font-size: 0.875rem;
+}
+
+/* No Results */
+.no-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 1rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.875rem;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar Styles */
+.suggestions-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+    background: rgba(107, 126, 63, 0.3);
+    border-radius: 4px;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 126, 63, 0.5);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .suggestions-list {
+        max-height: 200px;
+    }
+
+    .suggestion-item {
+        padding: 0.625rem;
+    }
+
+    .location-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 0.625rem;
+    }
+}

@@ -26,6 +26,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import type { UserProfile, OrderHistory, AuthFormData } from '../types/types';
+import { emailService } from './emailService';
 
 /**
  * Validate password strength
@@ -47,6 +48,32 @@ function validatePassword(password: string): { isValid: boolean; message: string
 }
 
 /**
+ * Validate phone number format
+ */
+function validatePhoneNumber(phoneNumber: string): { isValid: boolean; message: string } {
+    // Remove all non-digit characters
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+
+    // Check if it's a valid US phone number (10 digits)
+    if (digitsOnly.length !== 10) {
+        return {
+            isValid: false,
+            message: 'Phone number must be 10 digits (e.g., (555) 123-4567)'
+        };
+    }
+
+    // Check if first digit is not 0 or 1
+    if (digitsOnly[0] === '0' || digitsOnly[0] === '1') {
+        return {
+            isValid: false,
+            message: 'Phone number cannot start with 0 or 1'
+        };
+    }
+
+    return { isValid: true, message: '' };
+}
+
+/**
  * Register a new user with email and password
  * Creates user profile in Firestore and sends verification email
  */
@@ -56,6 +83,16 @@ export async function registerUser(formData: AuthFormData): Promise<User> {
         const passwordValidation = validatePassword(formData.password);
         if (!passwordValidation.isValid) {
             throw new Error(passwordValidation.message);
+        }
+
+        // Validate phone number (now required)
+        if (!formData.phoneNumber || formData.phoneNumber.trim() === '') {
+            throw new Error('Phone number is required');
+        }
+
+        const phoneValidation = validatePhoneNumber(formData.phoneNumber);
+        if (!phoneValidation.isValid) {
+            throw new Error(phoneValidation.message);
         }
 
         // Create Firebase Auth user
@@ -74,13 +111,14 @@ export async function registerUser(formData: AuthFormData): Promise<User> {
             });
         }
 
-        // Create user profile document in Firestore - only with required fields
+        // Create user profile document in Firestore
         const userProfileData: any = {
             uid: user.uid,
             email: formData.email,
             firstName: formData.firstName || '',
             lastName: formData.lastName || '',
             displayName: `${formData.firstName} ${formData.lastName}`,
+            phoneNumber: formData.phoneNumber, // Now required
             emailVerified: false,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
@@ -92,15 +130,10 @@ export async function registerUser(formData: AuthFormData): Promise<User> {
             }
         };
 
-        // Only add phoneNumber if it was provided
-        if (formData.phoneNumber && formData.phoneNumber.trim() !== '') {
-            userProfileData.phoneNumber = formData.phoneNumber;
-        }
-
         // Save to Firestore
         await setDoc(doc(db, 'users', user.uid), userProfileData);
 
-        // CRITICAL: Send verification email immediately with multiple attempts
+        // Send verification email with multiple attempts
         let emailSent = false;
         let lastError = null;
 
@@ -175,6 +208,7 @@ export async function signInWithGoogle(): Promise<User> {
                 userProfileData.photoURL = user.photoURL;
             }
 
+            // Note: Google sign-in users will need to add phone number later
             await setDoc(doc(db, 'users', user.uid), userProfileData);
         } else {
             // Update last login timestamp
@@ -287,6 +321,14 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  */
 export async function updateUserProfile(uid: string, updates: Partial<UserProfile>): Promise<void> {
     try {
+        // Validate phone number if it's being updated
+        if (updates.phoneNumber) {
+            const phoneValidation = validatePhoneNumber(updates.phoneNumber);
+            if (!phoneValidation.isValid) {
+                throw new Error(phoneValidation.message);
+            }
+        }
+
         const updateData: any = {
             ...updates,
             updatedAt: Timestamp.now()
@@ -334,7 +376,7 @@ export async function updateUserEmail(newEmail: string): Promise<void> {
 }
 
 /**
- * Update user password
+ * Update user password and send notification email
  */
 export async function updateUserPassword(newPassword: string): Promise<void> {
     try {
@@ -349,7 +391,13 @@ export async function updateUserPassword(newPassword: string): Promise<void> {
             throw new Error(passwordValidation.message);
         }
 
+        // Update password in Firebase Auth
         await updatePassword(user, newPassword);
+
+        // Send password change notification email
+        if (user.email) {
+            await emailService.sendPasswordChangeNotification(user.uid, user.email);
+        }
     } catch (error) {
         const authError = error as AuthError;
         console.error('Update password error:', authError);
@@ -431,4 +479,4 @@ function getAuthErrorMessage(error: AuthError): string {
     }
 }
 
-export { getAuthErrorMessage, validatePassword };
+export { getAuthErrorMessage, validatePassword, validatePhoneNumber };
