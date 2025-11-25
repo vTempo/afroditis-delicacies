@@ -1,71 +1,17 @@
-// import { useState } from 'react';
-// import Header from '../components/utils/header';
-// import Footer from '../components/utils/footer';
-// import { useUserProfile } from '../context/userContext/userProfile';
-// import { useAuth } from '../context/authContext/authContext';
-// import '../styles/menu.css';
-
-// export default function Menu() {
-//   const { user } = useAuth();
-//   const profile = useUserProfile();
-//   console.log(user);
-//   console.log(profile);
-
-//   const editMenu = () => {
-//     console.log("editing menu here");
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-white font-sans flex flex-col">
-//       <Header />
-
-//       <main className="menu-container">
-//         <div className="menu-header">
-//           <h1>Our Menu</h1>
-//           <p>Authentic Greek cuisine made with traditional recipes and the finest ingredients</p>
-//           {user && profile && profile.role === "admin" && (
-//             <button
-//               onClick={editMenu}
-//               className="filter-btn"
-//             >
-//               Edit Menu
-//             </button>
-//           )}
-//         </div>
-
-//         <div className="menu-filters">
-//           {categories.map(category => (
-//             <button
-//               key={category}
-//               onClick={() => setSelectedCategory(category)}
-//               className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
-//             >
-//               {category}
-//             </button>
-//           ))}
-//         </div>
-
-//         <div className="menu-content">
-
-//         </div>
-//       </main>
-
-//       <Footer />
-//     </div>
-//   );
-// };
 import { useState, useEffect } from 'react';
 import Header from '../components/utils/header';
 import Footer from '../components/utils/footer';
 import { useUserProfile } from '../context/userContext/userProfile';
 import { useAuth } from '../context/authContext/authContext';
 import { getMenuData } from '../services/menuService';
+import { useEditMenu } from '../components/editMenu/editMenu';
 import type { MenuItem, MenuCategory } from '../types/types';
 import '../styles/menu.css';
 
 export default function Menu() {
   const { user } = useAuth();
   const profile = useUserProfile();
+  const isAdmin = user && profile?.role === "admin";
 
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -73,6 +19,17 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState('Full Menu');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    categoryBeingEdited,
+    categoryBeingDeleted,
+    categoryForNewDish,
+    editCategory,
+    deleteCategory,
+    addDish,
+    closeAll
+  } = useEditMenu();
+
 
   // Fetch menu data from Firebase on component mount
   useEffect(() => {
@@ -163,7 +120,7 @@ export default function Menu() {
         <div className="menu-header">
           <h1>Our Menu</h1>
           <p>Authentic Greek cuisine made with traditional recipes and the finest ingredients</p>
-          {user && profile && profile.role === "admin" && (
+          {isAdmin && (
             <button
               onClick={editMenu}
               className="filter-btn"
@@ -190,6 +147,13 @@ export default function Menu() {
             <div key={categoryName} className="menu-category">
               <div className="category-header">
                 <h2 className="category-title">{categoryName}</h2>
+                {isAdmin && (
+                  <div className="category-admin-controls">
+                    <button onClick={() => editCategory(categoryName)}>✏</button>
+                    <button onClick={() => deleteCategory(categoryName)}>🗑</button>
+                    <button onClick={() => addDish(categoryName)}>➕</button>
+                  </div>
+                )}
                 {hasTwoSizes && (
                   <div className="size-headers">
                     <span className="size-header">Large / Small</span>
@@ -224,6 +188,64 @@ export default function Menu() {
             <p>{menuNote}</p>
           </div>
         )}
+
+        {categoryBeingEdited && (
+          <div className="edit-menu-popup">
+            <h2>Edit Category</h2>
+            <p>Currently editing: <strong>{categoryBeingEdited}</strong></p>
+
+            <label>New name:</label>
+            <input type="text" placeholder="Enter new category name" />
+
+            <button onClick={() => console.log("Save category changes")}>
+              Save
+            </button>
+
+            <button className="edit-menu-close" onClick={closeAll}>
+              Close
+            </button>
+          </div>
+        )}
+
+
+        {categoryBeingDeleted && (
+          <div className="edit-menu-popup">
+            <h2>Delete Category</h2>
+            <p>Are you sure you want to delete <strong>{categoryBeingDeleted}</strong>?</p>
+
+            <button onClick={() => console.log("Delete fired")}>
+              Yes, delete
+            </button>
+
+            <button className="edit-menu-close" onClick={closeAll}>
+              Cancel
+            </button>
+          </div>
+        )}
+
+
+        {categoryForNewDish && (
+          <div className="edit-menu-popup">
+            <h2>Add Dish</h2>
+            <p>Category: <strong>{categoryForNewDish}</strong></p>
+
+            <label>Dish name:</label>
+            <input type="text" placeholder="Dish name" />
+
+            <label>Price:</label>
+            <input type="number" placeholder="10" />
+
+            <button onClick={() => console.log("Add dish fired")}>
+              Add Dish
+            </button>
+
+            <button className="edit-menu-close" onClick={closeAll}>
+              Close
+            </button>
+          </div>
+        )}
+
+
       </main>
 
       <Footer />
