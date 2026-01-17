@@ -5,12 +5,14 @@ import Footer from '../components/utils/footer';
 import { useUserProfile } from '../context/userContext/userProfile';
 import { useAuth } from '../context/authContext/authContext';
 import {
-  getMenuData,
-  updateCategoryName,
-  deleteCategory as deleteCategoryService,
-  addDish as addDishService,
-  addCategory as addCategoryService
-} from '../services/menuService';
+     getMenuData,
+     updateCategoryName,
+     deleteCategory as deleteCategoryService,
+     addDish as addDishService,
+     addCategory as addCategoryService,
+     updateDish as updateDishService,
+     deleteDish as deleteDishService
+   } from '../services/menuService';
 import { useEditMenu } from '../components/editMenu/editMenu';
 import type { MenuItem, MenuCategory } from '../types/types';
 import '../styles/menu.css';
@@ -32,6 +34,8 @@ export default function Menu() {
     categoryBeingDeleted,
     categoryForNewDish,
     showAddCategory,
+    dishBeingEdited,
+    dishBeingDeleted,
     newCategoryName,
     setNewCategoryName,
     dishName,
@@ -55,6 +59,8 @@ export default function Menu() {
     editCategory,
     deleteCategory,
     addDish,
+    editDish,
+    deleteDishConfirm,
     openAddCategory,
     closeAll
   } = useEditMenu();
@@ -217,6 +223,78 @@ export default function Menu() {
       setIsSubmitting(false);
     }
   };
+
+  // Handle edit dish
+const handleEditDish = async () => {
+  if (!dishBeingEdited || !dishName.trim() || !dishPrice.trim()) {
+    alert('Please fill in dish name and price');
+    return;
+  }
+
+  const price = parseFloat(dishPrice);
+  if (isNaN(price) || price <= 0) {
+    alert('Please enter a valid price');
+    return;
+  }
+
+  let secondPrice = undefined;
+  if (dishSecondPrice.trim()) {
+    secondPrice = parseFloat(dishSecondPrice);
+    if (isNaN(secondPrice) || secondPrice <= 0) {
+      alert('Please enter a valid second price or leave it empty');
+      return;
+    }
+  }
+
+  try {
+    setIsSubmitting(true);
+
+    await updateDishService(dishBeingEdited.id, {
+      name: dishName.trim(),
+      price: price,
+      secondPrice: secondPrice,
+      available: dishAvailable,
+      imageUrl: dishImagePreview || '',
+    });
+
+    const data = await getMenuData();
+    setCategories(data.categories);
+    setMenuItems(data.items);
+
+    alert('Dish updated successfully!');
+    closeAll();
+  } catch (err) {
+    console.error('Error updating dish:', err);
+    alert('Failed to update dish. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+// Handle delete dish
+const handleDeleteDish = async () => {
+  if (!dishBeingDeleted) return;
+
+  try {
+    setIsSubmitting(true);
+    await deleteDishService(dishBeingDeleted.id);
+
+    const data = await getMenuData();
+    setCategories(data.categories);
+    setMenuItems(data.items);
+
+    alert('Dish deleted successfully!');
+    closeAll();
+  } catch (err) {
+    console.error('Error deleting dish:', err);
+    alert('Failed to delete dish. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+
 
   // Handle image selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -387,35 +465,38 @@ export default function Menu() {
 
               <div className="menu-items">
                 {items.length > 0 ? (
-                  items.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`menu-item ${!item.available ? 'unavailable' : ''}`}
-                    >
-                      <div className="item-content">
-                        <h3 className="item-name">
-                          {item.name}
-                        </h3>
-                        {item.isTopSeller && <span className="top-seller-badge">(Top seller)</span>}
-                      </div>
-                      <div className="item-pricing">
-                        {hasTwoSizes ? (
-                          <span className="price">
-                            ${item.price}.00 / {item.secondPrice ? `$${item.secondPrice}.00` : '-'}
-                          </span>
-                        ) : (
-                          <span className="price single-price">${item.price}.00</span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  isAdmin && (
-                    <div className="empty-category">
-                      <p>No dishes in this category yet. Click the + button above to add one.</p>
-                    </div>
-                  )
-                )}
+  items.map((item) => (
+    <div
+      key={item.id}
+      className={`menu-item ${!item.available ? 'unavailable' : ''} ${isAdmin ? 'clickable' : ''}`}
+      onClick={() => isAdmin ? editDish(item) : undefined}
+      style={{ cursor: isAdmin ? 'pointer' : 'default' }}
+    >
+      <div className="item-content">
+        <h3 className="item-name">
+          {item.name}
+          {!item.available && <span className="unavailable-badge">(Unavailable)</span>}
+        </h3>
+        {item.isTopSeller && <span className="top-seller-badge">(Top seller)</span>}
+      </div>
+      <div className="item-pricing">
+        {hasTwoSizes ? (
+          <span className="price">
+            ${item.price}.00 / {item.secondPrice ? `$${item.secondPrice}.00` : '-'}
+          </span>
+        ) : (
+          <span className="price single-price">${item.price}.00</span>
+        )}
+      </div>
+    </div>
+  ))
+) : (
+  isAdmin && (
+    <div className="empty-category">
+      <p>No dishes in this category yet. Click the + button above to add one.</p>
+    </div>
+  )
+)}
               </div>
             </div>
           ))}
@@ -668,6 +749,158 @@ export default function Menu() {
             </div>
           </>
         )}
+
+        {/* Edit Dish Popup */}
+{dishBeingEdited && (
+  <>
+    <div className="edit-overlay" onClick={closeAll}></div>
+    <div className="edit-menu-popup add-dish-popup">
+      <h2>Edit Dish</h2>
+      <p className="popup-subtitle">Category: <strong>{dishBeingEdited.category}</strong></p>
+
+      <div className="form-group">
+        <label>Dish name: *</label>
+        <input
+          type="text"
+          placeholder="e.g., Moussaka"
+          value={dishName}
+          onChange={(e) => setDishName(e.target.value)}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Price: *</label>
+          <input
+            type="number"
+            placeholder="15"
+            min="0"
+            step="0.01"
+            value={dishPrice}
+            onChange={(e) => setDishPrice(e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Second Price: (optional)</label>
+          <input
+            type="number"
+            placeholder="10"
+            min="0"
+            step="0.01"
+            value={dishSecondPrice}
+            onChange={(e) => setDishSecondPrice(e.target.value)}
+            disabled={isSubmitting}
+          />
+        </div>
+      </div>
+
+      <div className="form-group checkbox-group">
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={dishAvailable}
+            onChange={(e) => setDishAvailable(e.target.checked)}
+            disabled={isSubmitting}
+          />
+          <span>Dish is available</span>
+        </label>
+      </div>
+
+      <div className="form-group">
+        <label>Dish Image: (placeholder)</label>
+        <div className="image-upload-section">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            disabled={isSubmitting}
+            className="file-input"
+            id="edit-dish-image-upload"
+          />
+          <label htmlFor="edit-dish-image-upload" className="file-input-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            Choose Image
+          </label>
+          {dishImagePreview && (
+            <div className="image-preview">
+              <img src={dishImagePreview} alt="Preview" />
+            </div>
+          )}
+          <p className="image-note">Image upload will be implemented in a future update</p>
+        </div>
+      </div>
+
+      <div className="popup-buttons">
+        <button
+          className="save-btn"
+          onClick={handleEditDish}
+          disabled={isSubmitting || !dishName.trim() || !dishPrice.trim()}
+        >
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </button>
+
+        <button
+          className="delete-button"
+          onClick={() => {
+            closeAll();
+            deleteDishConfirm(dishBeingEdited);
+          }}
+          disabled={isSubmitting}
+        >
+          Delete Dish
+        </button>
+
+        <button
+          className="cancel-btn"
+          onClick={closeAll}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </>
+)}
+
+{/* Delete Dish Confirmation Popup */}
+{dishBeingDeleted && (
+  <>
+    <div className="edit-overlay" onClick={closeAll}></div>
+    <div className="edit-menu-popup">
+      <h2>Delete Dish</h2>
+      <p className="popup-subtitle warning">This action cannot be undone</p>
+
+      <p className="confirmation-text">
+        Are you sure you want to delete <strong>{dishBeingDeleted.name}</strong>?
+      </p>
+
+      <div className="popup-buttons">
+        <button
+          className="delete-button"
+          onClick={handleDeleteDish}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Deleting...' : 'Yes, Delete'}
+        </button>
+
+        <button
+          className="cancel-btn"
+          onClick={closeAll}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </>
+)}
 
       </main>
 
