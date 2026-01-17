@@ -1,105 +1,52 @@
 // app/services/menuService.ts
-import { collection, getDocs, query, orderBy, doc, getDoc, writeBatch, where, addDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, writeBatch, addDoc, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import type { MenuItem, MenuCategory } from '../types/types';
 
 /**
- * Fetch all categories from Firestore, ordered by 'order' field
+ * Get all menu data (categories and items)
  */
-export async function getCategories(): Promise<MenuCategory[]> {
+export async function getMenuData(): Promise<{
+    categories: MenuCategory[];
+    items: MenuItem[];
+    menuNote: string;
+}> {
     try {
+        // Fetch categories
         const categoriesRef = collection(db, 'categories');
-        const q = query(categoriesRef, orderBy('order', 'asc'));
-        const querySnapshot = await getDocs(q);
+        const categoriesQuery = query(categoriesRef, orderBy('order', 'asc'));
+        const categoriesSnapshot = await getDocs(categoriesQuery);
 
-        const categories: MenuCategory[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            categories.push({
-                id: doc.id,
-                name: data.name,
-                order: data.order,
-                hasTwoSizes: data.hasTwoSizes || false,
-                createdAt: data.createdAt?.toDate() || new Date(),
-                updatedAt: data.updatedAt?.toDate() || new Date(),
-            });
-        });
+        const categories: MenuCategory[] = categoriesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            hasTwoSizes: doc.data().hasTwoSizes || false,
+            order: doc.data().order || 0,
+        }));
 
-        console.log('Fetched categories:', categories);
-        return categories;
-    } catch (error) {
-        console.error('Error fetching categories:', error);
-        throw new Error('Failed to fetch categories');
-    }
-}
-
-/**
- * Fetch all menu items from Firestore, ordered by 'order' field
- */
-export async function getMenuItems(): Promise<MenuItem[]> {
-    try {
+        // Fetch menu items
         const menuItemsRef = collection(db, 'menuItems');
-        const q = query(menuItemsRef, orderBy('order', 'asc'));
-        const querySnapshot = await getDocs(q);
+        const menuItemsQuery = query(menuItemsRef, orderBy('order', 'asc'));
+        const menuItemsSnapshot = await getDocs(menuItemsQuery);
 
-        const items: MenuItem[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            items.push({
-                id: doc.id,
-                name: data.name,
-                category: data.category,
-                price: data.price,
-                secondPrice: data.secondPrice,
-                isTopSeller: data.isTopSeller || false,
-                description: data.description,
-                imageUrl: data.imageUrl,
-                available: data.available !== false,
-                order: data.order,
-                createdAt: data.createdAt?.toDate() || new Date(),
-                updatedAt: data.updatedAt?.toDate() || new Date(),
-            });
-        });
+        const items: MenuItem[] = menuItemsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            category: doc.data().category,
+            price: doc.data().price,
+            secondPrice: doc.data().secondPrice || undefined,
+            available: doc.data().available ?? true,
+            imageUrl: doc.data().imageUrl || '',
+            isTopSeller: doc.data().isTopSeller || false,
+            description: doc.data().description || '',
+            order: doc.data().order || 0,
+        }));
 
-        console.log('Fetched menu items:', items);
-        return items;
-    } catch (error) {
-        console.error('Error fetching menu items:', error);
-        throw new Error('Failed to fetch menu items');
-    }
-}
-
-/**
- * Fetch menu note from a settings document in Firestore
- */
-export async function getMenuNote(): Promise<string> {
-    try {
-        const settingsRef = doc(db, 'settings', 'menu');
-        const settingsDoc = await getDoc(settingsRef);
-
-        if (settingsDoc.exists()) {
-            return settingsDoc.data().note || '';
-        }
-
-        return '';
-    } catch (error) {
-        console.error('Error fetching menu note:', error);
-        return '';
-    }
-}
-
-/**
- * Fetch all menu data at once
- */
-export async function getMenuData() {
-    try {
-        const [categories, items, menuNote] = await Promise.all([
-            getCategories(),
-            getMenuItems(),
-            getMenuNote(),
-        ]);
-
-        return { categories, items, menuNote };
+        return {
+            categories,
+            items,
+            menuNote: '',
+        };
     } catch (error) {
         console.error('Error fetching menu data:', error);
         throw new Error('Failed to fetch menu data');
@@ -113,7 +60,7 @@ export async function updateCategoryName(oldName: string, newName: string): Prom
     try {
         const batch = writeBatch(db);
 
-        // 1. Find and update the category document
+        // 1. Update the category document
         const categoriesRef = collection(db, 'categories');
         const categoryQuery = query(categoriesRef, where('name', '==', oldName));
         const categorySnapshot = await getDocs(categoryQuery);
@@ -122,15 +69,14 @@ export async function updateCategoryName(oldName: string, newName: string): Prom
             throw new Error(`Category "${oldName}" not found`);
         }
 
-        // Update category name
         categorySnapshot.forEach((docSnapshot) => {
             batch.update(docSnapshot.ref, {
                 name: newName,
-                updatedAt: new Date()
+                updatedAt: new Date(),
             });
         });
 
-        // 2. Find and update all menu items with this category
+        // 2. Update all menu items with this category
         const menuItemsRef = collection(db, 'menuItems');
         const itemsQuery = query(menuItemsRef, where('category', '==', oldName));
         const itemsSnapshot = await getDocs(itemsQuery);
@@ -138,7 +84,7 @@ export async function updateCategoryName(oldName: string, newName: string): Prom
         itemsSnapshot.forEach((docSnapshot) => {
             batch.update(docSnapshot.ref, {
                 category: newName,
-                updatedAt: new Date()
+                updatedAt: new Date(),
             });
         });
 
@@ -193,6 +139,7 @@ export async function deleteCategory(categoryName: string): Promise<void> {
 
 /**
  * Add a new dish to a category
+ * FIXED: Removed orderBy to avoid composite index requirement
  */
 export async function addDish(dishData: {
     name: string;
@@ -203,16 +150,19 @@ export async function addDish(dishData: {
     imageUrl?: string;
 }): Promise<void> {
     try {
-        // Get the highest order number for items in this category
+        // Get all items in this category (without orderBy to avoid index requirement)
         const menuItemsRef = collection(db, 'menuItems');
-        const itemsQuery = query(menuItemsRef, where('category', '==', dishData.category), orderBy('order', 'desc'));
+        const itemsQuery = query(menuItemsRef, where('category', '==', dishData.category));
         const itemsSnapshot = await getDocs(itemsQuery);
 
+        // Find max order manually
         let maxOrder = 0;
-        if (!itemsSnapshot.empty) {
-            const firstDoc = itemsSnapshot.docs[0];
-            maxOrder = firstDoc.data().order || 0;
-        }
+        itemsSnapshot.forEach((doc) => {
+            const order = doc.data().order || 0;
+            if (order > maxOrder) {
+                maxOrder = order;
+            }
+        });
 
         // Create new dish with order = maxOrder + 1
         const newDish = {
@@ -240,22 +190,25 @@ export async function addDish(dishData: {
 
 /**
  * Add a new category
+ * FIXED: Removed orderBy to avoid index requirement
  */
 export async function addCategory(categoryData: {
     name: string;
     hasTwoSizes: boolean;
 }): Promise<void> {
     try {
-        // Get the highest order number for categories
+        // Get all categories (without orderBy to avoid potential issues)
         const categoriesRef = collection(db, 'categories');
-        const categoriesQuery = query(categoriesRef, orderBy('order', 'desc'));
-        const categoriesSnapshot = await getDocs(categoriesQuery);
+        const categoriesSnapshot = await getDocs(categoriesRef);
 
+        // Find max order manually
         let maxOrder = 0;
-        if (!categoriesSnapshot.empty) {
-            const firstDoc = categoriesSnapshot.docs[0];
-            maxOrder = firstDoc.data().order || 0;
-        }
+        categoriesSnapshot.forEach((doc) => {
+            const order = doc.data().order || 0;
+            if (order > maxOrder) {
+                maxOrder = order;
+            }
+        });
 
         // Create new category with order = maxOrder + 1
         const newCategory = {
@@ -272,5 +225,49 @@ export async function addCategory(categoryData: {
     } catch (error) {
         console.error('Error adding category:', error);
         throw new Error('Failed to add category');
+    }
+}
+
+/**
+ * Update a dish
+ */
+export async function updateDish(dishId: string, dishData: {
+    name: string;
+    price: number;
+    secondPrice?: number;
+    available: boolean;
+    imageUrl?: string;
+}): Promise<void> {
+    try {
+        const dishDocRef = doc(db, 'menuItems', dishId);
+        
+        await updateDoc(dishDocRef, {
+            name: dishData.name,
+            price: dishData.price,
+            secondPrice: dishData.secondPrice || null,
+            available: dishData.available,
+            imageUrl: dishData.imageUrl || '',
+            updatedAt: new Date(),
+        });
+
+        console.log(`Successfully updated dish "${dishData.name}"`);
+    } catch (error) {
+        console.error('Error updating dish:', error);
+        throw new Error('Failed to update dish');
+    }
+}
+
+/**
+ * Delete a dish
+ */
+export async function deleteDish(dishId: string): Promise<void> {
+    try {
+        const dishDocRef = doc(db, 'menuItems', dishId);
+        await deleteDoc(dishDocRef);
+
+        console.log(`Successfully deleted dish with ID "${dishId}"`);
+    } catch (error) {
+        console.error('Error deleting dish:', error);
+        throw new Error('Failed to delete dish');
     }
 }

@@ -763,3 +763,37 @@
     height: 18px;
   }
 }
+
+
+/* Admin Styles */
+.menu-item.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item.clickable:hover {
+  background: rgba(107, 126, 63, 0.05);
+  transform: translateX(4px);
+}
+
+.menu-item.clickable:active {
+  background: rgba(107, 126, 63, 0.1);
+}
+
+/* Visual indicator that item is clickable */
+.menu-item.clickable .item-name {
+  position: relative;
+}
+
+.menu-item.clickable .item-name::after {
+  position: absolute;
+  right: -24px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 0.9rem;
+  color: #6B7E3F;
+}
+
+.menu-item.clickable:hover .item-name::after {
+  opacity: 0.6;
+}

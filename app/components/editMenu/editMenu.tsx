@@ -1,5 +1,6 @@
 // app/components/editMenu/editMenu.tsx
 import { useState } from "react";
+import type { MenuItem } from "../../types/types";
 
 export function useEditMenu() {
   // Popup states
@@ -7,11 +8,13 @@ export function useEditMenu() {
   const [categoryBeingDeleted, setCategoryBeingDeleted] = useState<string | null>(null);
   const [categoryForNewDish, setCategoryForNewDish] = useState<string | null>(null);
   const [showAddCategory, setShowAddCategory] = useState<boolean>(false);
+  const [dishBeingEdited, setDishBeingEdited] = useState<MenuItem | null>(null);
+  const [dishBeingDeleted, setDishBeingDeleted] = useState<MenuItem | null>(null);
 
   // Edit category form
   const [newCategoryName, setNewCategoryName] = useState<string>('');
 
-  // Add dish form
+  // Add/Edit dish form
   const [dishName, setDishName] = useState<string>('');
   const [dishPrice, setDishPrice] = useState<string>('');
   const [dishSecondPrice, setDishSecondPrice] = useState<string>('');
@@ -49,6 +52,23 @@ export function useEditMenu() {
     setDishImagePreview('');
   }
 
+  function editDish(dish: MenuItem) {
+    console.log("Edit dish:", dish);
+    setDishBeingEdited(dish);
+    // Pre-fill form with current values
+    setDishName(dish.name);
+    setDishPrice(dish.price.toString());
+    setDishSecondPrice(dish.secondPrice ? dish.secondPrice.toString() : '');
+    setDishAvailable(dish.available ?? true);
+    setDishImage(null);
+    setDishImagePreview(dish.imageUrl || '');
+  }
+
+  function deleteDishConfirm(dish: MenuItem) {
+    console.log("Delete dish:", dish);
+    setDishBeingDeleted(dish);
+  }
+
   function openAddCategory() {
     setShowAddCategory(true);
     setNewCategoryNameInput('');
@@ -60,6 +80,8 @@ export function useEditMenu() {
     setCategoryBeingDeleted(null);
     setCategoryForNewDish(null);
     setShowAddCategory(false);
+    setDishBeingEdited(null);
+    setDishBeingDeleted(null);
     setNewCategoryName('');
     setDishName('');
     setDishPrice('');
@@ -78,12 +100,14 @@ export function useEditMenu() {
     categoryBeingDeleted,
     categoryForNewDish,
     showAddCategory,
+    dishBeingEdited,
+    dishBeingDeleted,
 
     // Edit category
     newCategoryName,
     setNewCategoryName,
 
-    // Add dish
+    // Add/Edit dish
     dishName,
     setDishName,
     dishPrice,
@@ -111,6 +135,8 @@ export function useEditMenu() {
     editCategory,
     deleteCategory,
     addDish,
+    editDish,
+    deleteDishConfirm,
     openAddCategory,
     closeAll
   };
