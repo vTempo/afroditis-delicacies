@@ -188,6 +188,63 @@
   transition: opacity 0.3s ease;
 }
 
+/* Drag handle for menu items */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  cursor: grab;
+  color: #6B7E3F;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Show drag handle on hover for admin */
+.menu-item:hover .drag-handle {
+  opacity: 0.6;
+}
+
+.drag-handle:hover {
+  opacity: 1 !important;
+}
+
+/* Dragging state */
+.menu-item.dragging {
+  opacity: 0.5;
+  background: rgba(107, 126, 63, 0.1);
+}
+
+/* Drag over state */
+.menu-item.drag-over {
+  border-top: 3px solid #6B7E3F;
+}
+
+/* Update item-content to account for drag handle */
+.menu-item .item-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* Make sure drag handle doesn't show for non-admin users */
+.menu-item:not(.admin-view) .drag-handle {
+  display: none;
+}
+
 .menu-item:last-child {
   border-bottom: none;
 }

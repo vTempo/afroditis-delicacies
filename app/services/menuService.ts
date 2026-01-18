@@ -271,3 +271,28 @@ export async function deleteDish(dishId: string): Promise<void> {
         throw new Error('Failed to delete dish');
     }
 }
+
+/**
+ * Reorder dishes within a category
+ * Updates the order field for multiple dishes in a single batch operation
+ */
+export async function reorderDishes(dishUpdates: Array<{ id: string; order: number }>): Promise<void> {
+    try {
+        const batch = writeBatch(db);
+
+        dishUpdates.forEach(({ id, order }) => {
+            const dishDocRef = doc(db, 'menuItems', id);
+            batch.update(dishDocRef, {
+                order: order,
+                updatedAt: new Date(),
+            });
+        });
+
+        await batch.commit();
+
+        console.log(`Successfully reordered ${dishUpdates.length} dishes`);
+    } catch (error) {
+        console.error('Error reordering dishes:', error);
+        throw new Error('Failed to reorder dishes');
+    }
+}
