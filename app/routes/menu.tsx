@@ -5,14 +5,15 @@ import Footer from '../components/utils/footer';
 import { useUserProfile } from '../context/userContext/userProfile';
 import { useAuth } from '../context/authContext/authContext';
 import {
-     getMenuData,
-     updateCategoryName,
-     deleteCategory as deleteCategoryService,
-     addDish as addDishService,
-     addCategory as addCategoryService,
-     updateDish as updateDishService,
-     deleteDish as deleteDishService
-   } from '../services/menuService';
+  getMenuData,
+  updateCategoryName,
+  deleteCategory as deleteCategoryService,
+  addDish as addDishService,
+  addCategory as addCategoryService,
+  updateDish as updateDishService,
+  deleteDish as deleteDishService,
+  reorderDishes as reorderDishesService  
+} from '../services/menuService';
 import { useEditMenu } from '../components/editMenu/editMenu';
 import type { MenuItem, MenuCategory } from '../types/types';
 import '../styles/menu.css';
@@ -28,6 +29,8 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState('Full Menu');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [draggedItem, setDraggedItem] = useState<MenuItem | null>(null);
+const [dragOverItem, setDragOverItem] = useState<MenuItem | null>(null);
 
   const {
     categoryBeingEdited,
@@ -293,8 +296,76 @@ const handleDeleteDish = async () => {
   }
 };
 
+// Drag and drop handlers
+const handleDragStart = (e: React.DragEvent, item: MenuItem) => {
+  setDraggedItem(item);
+  e.dataTransfer.effectAllowed = 'move';
+};
 
+const handleDragOver = (e: React.DragEvent, item: MenuItem) => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  
+  if (draggedItem && draggedItem.id !== item.id && draggedItem.category === item.category) {
+    setDragOverItem(item);
+  }
+};
 
+const handleDragLeave = () => {
+  setDragOverItem(null);
+};
+
+const handleDrop = async (e: React.DragEvent, dropTarget: MenuItem) => {
+  e.preventDefault();
+  
+  if (!draggedItem || draggedItem.id === dropTarget.id || draggedItem.category !== dropTarget.category) {
+    setDraggedItem(null);
+    setDragOverItem(null);
+    return;
+  }
+
+  try {
+    // Get all items in the category, sorted by current order
+    const categoryItems = menuItems
+      .filter(item => item.category === draggedItem.category)
+      .sort((a, b) => a.order - b.order);
+
+    // Find the indices
+    const draggedIndex = categoryItems.findIndex(item => item.id === draggedItem.id);
+    const dropIndex = categoryItems.findIndex(item => item.id === dropTarget.id);
+
+    // Reorder the array
+    const reorderedItems = [...categoryItems];
+    const [removed] = reorderedItems.splice(draggedIndex, 1);
+    reorderedItems.splice(dropIndex, 0, removed);
+
+    // Create updates with new order values
+    const updates = reorderedItems.map((item, index) => ({
+      id: item.id,
+      order: index + 1
+    }));
+
+    // Update in Firestore
+    await reorderDishesService(updates);
+
+    // Refresh menu data
+    const data = await getMenuData();
+    setCategories(data.categories);
+    setMenuItems(data.items);
+
+  } catch (err) {
+    console.error('Error reordering dishes:', err);
+    alert('Failed to reorder dishes. Please try again.');
+  } finally {
+    setDraggedItem(null);
+    setDragOverItem(null);
+  }
+};
+
+const handleDragEnd = () => {
+  setDraggedItem(null);
+  setDragOverItem(null);
+};
 
   // Handle image selection
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -466,30 +537,53 @@ const handleDeleteDish = async () => {
               <div className="menu-items">
                 {items.length > 0 ? (
   items.map((item) => (
-    <div
-      key={item.id}
-      className={`menu-item ${!item.available ? 'unavailable' : ''} ${isAdmin ? 'clickable' : ''}`}
-      onClick={() => isAdmin ? editDish(item) : undefined}
-      style={{ cursor: isAdmin ? 'pointer' : 'default' }}
-    >
-      <div className="item-content">
-        <h3 className="item-name">
-          {item.name}
-          {!item.available && <span className="unavailable-badge">(Unavailable)</span>}
-        </h3>
-        {item.isTopSeller && <span className="top-seller-badge">(Top seller)</span>}
+  <div
+    key={item.id}
+    className={`menu-item ${!item.available ? 'unavailable' : ''} ${isAdmin ? 'clickable admin-view' : ''} ${
+      draggedItem?.id === item.id ? 'dragging' : ''
+    } ${dragOverItem?.id === item.id ? 'drag-over' : ''}`}
+    draggable={!!isAdmin}
+    onDragStart={(e) => isAdmin ? handleDragStart(e, item) : undefined}
+    onDragOver={(e) => isAdmin ? handleDragOver(e, item) : undefined}
+    onDragLeave={isAdmin ? handleDragLeave : undefined}
+    onDrop={(e) => isAdmin ? handleDrop(e, item) : undefined}
+    onDragEnd={isAdmin ? handleDragEnd : undefined}
+    onClick={() => isAdmin && !draggedItem ? editDish(item) : undefined}
+    style={{ cursor: isAdmin ? (draggedItem ? 'grabbing' : 'pointer') : 'default' }}
+  >
+    {isAdmin && (
+      <div 
+        className="drag-handle"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="5" r="1.5" />
+          <circle cx="9" cy="12" r="1.5" />
+          <circle cx="9" cy="19" r="1.5" />
+          <circle cx="15" cy="5" r="1.5" />
+          <circle cx="15" cy="12" r="1.5" />
+          <circle cx="15" cy="19" r="1.5" />
+        </svg>
       </div>
-      <div className="item-pricing">
-        {hasTwoSizes ? (
-          <span className="price">
-            ${item.price}.00 / {item.secondPrice ? `$${item.secondPrice}.00` : '-'}
-          </span>
-        ) : (
-          <span className="price single-price">${item.price}.00</span>
-        )}
-      </div>
+    )}
+    <div className="item-content">
+      <h3 className="item-name">
+        {item.name}
+        {!item.available && <span className="unavailable-badge">(Unavailable)</span>}
+      </h3>
+      {item.isTopSeller && <span className="top-seller-badge">(Top seller)</span>}
     </div>
-  ))
+    <div className="item-pricing">
+      {hasTwoSizes ? (
+        <span className="price">
+          ${item.price}.00 / {item.secondPrice ? `$${item.secondPrice}.00` : '-'}
+        </span>
+      ) : (
+        <span className="price single-price">${item.price}.00</span>
+      )}
+    </div>
+  </div>
+))
 ) : (
   isAdmin && (
     <div className="empty-category">
