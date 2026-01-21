@@ -181,7 +181,7 @@ const [dragOverItem, setDragOverItem] = useState<MenuItem | null>(null);
         price: price,
         secondPrice: secondPrice,
         available: dishAvailable,
-        imageUrl: '',
+        imgPath: '',
       });
 
       const data = await getMenuData();
@@ -257,7 +257,7 @@ const handleEditDish = async () => {
       price: price,
       secondPrice: secondPrice,
       available: dishAvailable,
-      imageUrl: dishImagePreview || '',
+      imgPath: dishImagePreview || '',
     });
 
     const data = await getMenuData();
@@ -571,7 +571,6 @@ const handleDragEnd = () => {
         {item.name}
         {!item.available && <span className="unavailable-badge">(Unavailable)</span>}
       </h3>
-      {item.isTopSeller && <span className="top-seller-badge">(Top seller)</span>}
     </div>
     <div className="item-pricing">
       {hasTwoSizes ? (

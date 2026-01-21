@@ -36,8 +36,7 @@ export async function getMenuData(): Promise<{
             price: doc.data().price,
             secondPrice: doc.data().secondPrice || undefined,
             available: doc.data().available ?? true,
-            imageUrl: doc.data().imageUrl || '',
-            isTopSeller: doc.data().isTopSeller || false,
+            imgPath: doc.data().imgPath || '',
             description: doc.data().description || '',
             order: doc.data().order || 0,
         }));
@@ -72,7 +71,6 @@ export async function updateCategoryName(oldName: string, newName: string): Prom
         categorySnapshot.forEach((docSnapshot) => {
             batch.update(docSnapshot.ref, {
                 name: newName,
-                updatedAt: new Date(),
             });
         });
 
@@ -84,7 +82,6 @@ export async function updateCategoryName(oldName: string, newName: string): Prom
         itemsSnapshot.forEach((docSnapshot) => {
             batch.update(docSnapshot.ref, {
                 category: newName,
-                updatedAt: new Date(),
             });
         });
 
@@ -147,7 +144,7 @@ export async function addDish(dishData: {
     price: number;
     secondPrice?: number;
     available: boolean;
-    imageUrl?: string;
+    imgPath?: string;
 }): Promise<void> {
     try {
         // Get all items in this category (without orderBy to avoid index requirement)
@@ -171,12 +168,9 @@ export async function addDish(dishData: {
             price: dishData.price,
             secondPrice: dishData.secondPrice || null,
             available: dishData.available,
-            imageUrl: dishData.imageUrl || '',
-            isTopSeller: false,
+            imgPath: dishData.imgPath || '',
             description: '',
             order: maxOrder + 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
         };
 
         await addDoc(menuItemsRef, newDish);
@@ -215,8 +209,6 @@ export async function addCategory(categoryData: {
             name: categoryData.name,
             hasTwoSizes: categoryData.hasTwoSizes,
             order: maxOrder + 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
         };
 
         await addDoc(categoriesRef, newCategory);
@@ -236,7 +228,7 @@ export async function updateDish(dishId: string, dishData: {
     price: number;
     secondPrice?: number;
     available: boolean;
-    imageUrl?: string;
+    imgPath?: string;
 }): Promise<void> {
     try {
         const dishDocRef = doc(db, 'menuItems', dishId);
@@ -246,8 +238,7 @@ export async function updateDish(dishId: string, dishData: {
             price: dishData.price,
             secondPrice: dishData.secondPrice || null,
             available: dishData.available,
-            imageUrl: dishData.imageUrl || '',
-            updatedAt: new Date(),
+            imgPath: dishData.imgPath || '',
         });
 
         console.log(`Successfully updated dish "${dishData.name}"`);
@@ -284,7 +275,6 @@ export async function reorderDishes(dishUpdates: Array<{ id: string; order: numb
             const dishDocRef = doc(db, 'menuItems', id);
             batch.update(dishDocRef, {
                 order: order,
-                updatedAt: new Date(),
             });
         });
 

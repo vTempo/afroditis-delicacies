@@ -72,13 +72,10 @@ export interface MenuItem {
     category: string;
     price: number;
     secondPrice?: number; // For items with two sizes (Large/Small)
-    isTopSeller?: boolean;
     description?: string;
-    imageUrl?: string;
+    imgPath?: string;
     available: boolean;
     order: number; // For sorting items within a category
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export interface MenuCategory {
@@ -86,8 +83,6 @@ export interface MenuCategory {
     name: string;
     order: number; // For sorting categories
     hasTwoSizes: boolean; // True for categories like "Traditional Greek Pies" and "Beef Dishes"
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export interface MenuData {
