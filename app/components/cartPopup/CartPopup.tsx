@@ -128,6 +128,16 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <>
+              {/* Clear Cart Button */}
+              {cartItems.length > 0 && (
+                <button
+                  className="clear-cart-btn"
+                  onClick={handleClearCart}
+                  disabled={loading}
+                >
+                  Clear Cart
+                </button>
+              )}
               {/* Cart Items */}
               <div className="cart-items">
                 {cartItems.map((item) => (
@@ -236,17 +246,6 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
                   </div>
                 ))}
               </div>
-
-              {/* Clear Cart Button */}
-              {cartItems.length > 0 && (
-                <button
-                  className="clear-cart-btn"
-                  onClick={handleClearCart}
-                  disabled={loading}
-                >
-                  Clear Cart
-                </button>
-              )}
             </>
           )}
         </div>

@@ -2,14 +2,14 @@ import type { Route } from "./+types/home";
 import React, { useState, useEffect } from "react";
 import Header from "../components/utils/header";
 import Footer from "../components/utils/footer";
-import "../styles/home.css"
+import "../styles/home.css";
 
 // Import images from app/img folder
 import pastitsioImage from "../img/pastitsio.jpg";
 import tyropitaImage from "../img/tyropita.jpg";
 import tritipImage from "../img/tritip.jpg";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
     { name: "description", content: "Welcome to React Router!" },
@@ -33,7 +33,11 @@ export default function Home() {
     { url: tyropitaImage, alt: "Cheese Pie", title: "Tyropita" },
     { url: tritipImage, alt: "Tri-Tip", title: "Tri-Tip" },
     // Add more images here as you get them
-    { url: pastitsioImage, alt: "Traditional Greek Moussaka", title: "Moussaka" },
+    {
+      url: pastitsioImage,
+      alt: "Traditional Greek Moussaka",
+      title: "Moussaka",
+    },
     { url: tyropitaImage, alt: "Fresh Spanakopita", title: "Spanakopita" },
     { url: tritipImage, alt: "Sweet Baklava", title: "Baklava" },
   ];
@@ -48,20 +52,20 @@ export default function Home() {
       stars: 5,
       title: "Amazing spanakopita",
       text: "Spanakopita is amazingly delicious, and you get the real taste of Greece, with traditional handmade fyllo!! Afroditi's Delicacies also delivered it warm at my place. I would highly recommend her menu for any occasion with your beloved ones... because you just have to share this kind of food with the ones you love!",
-      author: "Eleni"
+      author: "Eleni",
     },
     {
       stars: 5,
       title: "Loved it!",
       text: "Amazing Baklava. The best I have ever had.",
-      author: "Harsh"
+      author: "Harsh",
     },
     {
       stars: 5,
       title: "Great value – Personalised menus",
       text: "Amazing food!!! Well presented.. people loved it!",
-      author: "Priti"
-    }
+      author: "Priti",
+    },
   ];
 
   // Auto-advance carousel every 4 seconds
@@ -83,7 +87,9 @@ export default function Home() {
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + foodImages.length) % foodImages.length);
+    setCurrentSlide(
+      (prev) => (prev - 1 + foodImages.length) % foodImages.length,
+    );
     setIsAutoPlaying(false);
     // Resume auto-play after 10 seconds
     setTimeout(() => setIsAutoPlaying(true), 10000);
@@ -105,7 +111,6 @@ export default function Home() {
         <section className="hero-section">
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-
               {/* Carousel Section - Left Side */}
               <div className="relative w-full">
                 <div className="carousel-container">
@@ -122,7 +127,7 @@ export default function Home() {
                           className="carousel-image"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
+                            target.style.display = "none";
                             const parent = target.parentElement;
                             if (parent) {
                               parent.innerHTML = `<div class="placeholder-image"><div class="placeholder-text"><p class="placeholder-title">${image.title}</p><p class="placeholder-subtitle">Image coming soon</p></div></div>`;
@@ -139,8 +144,18 @@ export default function Home() {
                     className="carousel-arrow carousel-arrow-left"
                     aria-label="Previous slide"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 19l-7-7 7-7"
+                      />
                     </svg>
                   </button>
                   <button
@@ -148,8 +163,18 @@ export default function Home() {
                     className="carousel-arrow carousel-arrow-right"
                     aria-label="Next slide"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
 
@@ -159,7 +184,7 @@ export default function Home() {
                       <button
                         key={index}
                         onClick={() => goToSlide(index)}
-                        className={`carousel-dot ${currentSlide === index ? 'carousel-dot-active' : ''}`}
+                        className={`carousel-dot ${currentSlide === index ? "carousel-dot-active" : ""}`}
                         aria-label={`Go to slide ${index + 1}`}
                       />
                     ))}
@@ -169,19 +194,15 @@ export default function Home() {
 
               {/* Green Info Box - Right Side */}
               <div className="hero-info-box">
-                <h1 className="hero-title">
-                  Greek Homemade Food
-                </h1>
+                <h1 className="hero-title">Greek Homemade Food</h1>
                 <p className="hero-subtitle">
-                  Catering and personal chef services in Seattle! Try our mousaka, pastitsio, pies, desserts and more.
+                  Catering and personal chef services in Seattle! Try our
+                  mousaka, pastitsio, pies, desserts and more.
                 </p>
                 <div className="hero-buttons">
-                  <button className="btn-primary">
+                  <a href="/menu" className="btn-primary">
                     See what's cooking!
-                  </button>
-                  <button className="btn-secondary">
-                    Make an order!
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -191,9 +212,7 @@ export default function Home() {
         {/* Reviews Section */}
         <section className="reviews-section">
           <div className="container mx-auto px-4">
-            <h2 className="section-title">
-              What Our Customers Say
-            </h2>
+            <h2 className="section-title">What Our Customers Say</h2>
             <div className="reviews-grid">
               {reviews.map((review, index) => (
                 <div key={index} className="review-card">
@@ -207,19 +226,13 @@ export default function Home() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="review-title">
-                    "{review.title}"
-                  </h3>
+                  <h3 className="review-title">"{review.title}"</h3>
 
                   {/* Review Text */}
-                  <p className="review-text">
-                    {review.text}
-                  </p>
+                  <p className="review-text">{review.text}</p>
 
                   {/* Author */}
-                  <p className="review-author">
-                    {review.author}
-                  </p>
+                  <p className="review-author">{review.author}</p>
                 </div>
               ))}
             </div>
@@ -230,11 +243,10 @@ export default function Home() {
         <section className="video-section">
           <div className="container mx-auto px-4">
             <div className="video-container-wrapper">
-              <h2 className="section-title">
-                As Featured on SKAI TV
-              </h2>
+              <h2 className="section-title">As Featured on SKAI TV</h2>
               <p className="video-description">
-                Watch our exclusive interview about bringing authentic Greek cuisine to Seattle
+                Watch our exclusive interview about bringing authentic Greek
+                cuisine to Seattle
               </p>
 
               {/* Video Embed Container */}
@@ -255,29 +267,15 @@ export default function Home() {
 
               {/* Video Description */}
               <p className="video-caption">
-                Discover the story behind Afroditi's Delicacies and our passion for authentic Greek flavors
+                Discover the story behind Afroditi's Delicacies and our passion
+                for authentic Greek flavors
               </p>
             </div>
-          </div>
-        </section>
-
-        {/* Call to Action Section */}
-        <section className="cta-section">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="cta-title">
-              Ready to Experience Authentic Greek Cuisine?
-            </h2>
-            <p className="cta-text">
-              From intimate family dinners to large catering events, we bring the taste of Greece to your table
-            </p>
-            <button className="cta-button">
-              Browse Our Menu
-            </button>
           </div>
         </section>
       </main>
 
       <Footer />
     </div>
-  )
+  );
 }

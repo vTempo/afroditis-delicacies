@@ -89,7 +89,7 @@
 }
 
 .auth-modal-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.8rem;
   font-weight: 500;
   color: var(--text-dark);
@@ -119,7 +119,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .google-signin-button:hover:not(:disabled) {
@@ -146,7 +146,7 @@
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   border-bottom: 1px solid #e0e0e0;
 }
@@ -155,7 +155,7 @@
   padding: 0 1rem;
   color: var(--text-medium);
   font-size: 0.9rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 /* Profile Menu */
@@ -176,7 +176,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.1rem;
   color: var(--text-dark);
   text-align: left;
@@ -210,14 +210,14 @@
 }
 
 .empty-state {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.2rem;
   color: var(--text-medium);
   margin: 0 0 0.5rem 0;
 }
 
 .empty-state-hint {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
   color: var(--text-medium);
   opacity: 0.7;
@@ -243,7 +243,7 @@
 }
 
 .settings-section h4 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.3rem;
   font-weight: 600;
   color: var(--text-dark);
@@ -276,7 +276,7 @@
   margin-bottom: 0.5rem;
   color: var(--text-dark);
   text-transform: uppercase;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .required {
@@ -292,7 +292,7 @@
   border: 1px solid #d0d0d0;
   border-radius: 4px;
   font-size: 1rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   transition: border-color 0.2s ease;
   background-color: white;
 }
@@ -310,7 +310,7 @@
   font-size: 0.8rem;
   color: var(--text-medium);
   margin-top: 0.25rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 /* Password Input Wrapper */
@@ -353,7 +353,7 @@
   color: var(--primary-green);
   text-decoration: none;
   font-size: 0.9rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   transition: color 0.2s ease;
 }
 
@@ -377,7 +377,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .submit-button:hover:not(:disabled) {
@@ -406,7 +406,7 @@
 .auth-toggle p {
   color: var(--text-medium);
   font-size: 0.95rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   margin: 0;
 }
 
@@ -418,7 +418,7 @@
   cursor: pointer;
   text-decoration: underline;
   font-size: 0.95rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   transition: color 0.2s ease;
   padding: 0;
 }
@@ -439,7 +439,7 @@
   padding: 0.875rem;
   border-radius: 4px;
   font-size: 0.9rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   margin-bottom: 1rem;
   border-left: 4px solid #c62828;
 }
@@ -450,7 +450,7 @@
   padding: 0.875rem;
   border-radius: 4px;
   font-size: 0.9rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   margin-bottom: 1rem;
   border-left: 4px solid #2e7d32;
 }
@@ -463,7 +463,7 @@
 }
 
 .user-info h3 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.5rem;
   font-weight: 500;
   color: var(--text-dark);
@@ -505,7 +505,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .resend-button:hover:not(:disabled) {
@@ -532,7 +532,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .logout-button:hover:not(:disabled) {
@@ -566,7 +566,6 @@
 }
 
 @media (max-width: 480px) {
-
   .form-group input[type="text"],
   .form-group input[type="email"],
   .form-group input[type="password"],
@@ -589,4 +588,120 @@
 /* Prevent body scroll when modal is open */
 body.modal-open {
   overflow: hidden;
+}
+
+/* Favorites List */
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.favorite-item-img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.favorite-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.favorite-item-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2d3319;
+}
+
+.favorite-item-price {
+  font-size: 0.9rem;
+  color: #6b7e3f;
+}
+
+/* Favorites List */
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.favorite-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.favorite-item-img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.favorite-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex-grow: 1;
+}
+
+.favorite-item-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2d3319;
+}
+
+.favorite-item-price {
+  font-size: 0.9rem;
+  color: #6b7e3f;
+}
+
+/* Remove button — filled red heart, fades on hover */
+.favorite-remove-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #c0392b;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.favorite-remove-btn:hover:not(:disabled) {
+  opacity: 0.6;
+  transform: scale(1.15);
+}
+
+.favorite-remove-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
