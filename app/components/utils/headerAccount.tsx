@@ -11,9 +11,7 @@ import type { AddressDetails } from "../../services/addressService";
 import "./headerAccount.css";
 
 // Mapbox access token
-const MAPBOX_TOKEN =
-  import.meta.env.VITE_MAPBOX_TOKEN ||
-  "pk.eyJ1IjoiaWxpYXNrbGFkYWtpcyIsImEiOiJjbWljZHYyc3MwcmRsMnNvazNnd2ozM201In0.Ix4wyDanhQXzhU1Qm14pFA";
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 interface HeaderAccountProps {
   isOpen: boolean;
