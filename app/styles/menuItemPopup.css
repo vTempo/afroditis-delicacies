@@ -411,3 +411,34 @@
     order: 1;
   }
 }
+
+/* Favorite Button */
+.favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  border: 2px solid #c0392b;
+  background: transparent;
+  color: #c0392b;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.favorite-btn:hover:not(:disabled) {
+  background: rgba(192, 57, 43, 0.08);
+}
+
+.favorite-btn.favorited {
+  background: #c0392b;
+  color: white;
+}
+
+.favorite-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
