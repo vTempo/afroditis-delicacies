@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useCart } from "../../context/cartContext/cartContext";
 import { useAuth } from "../../context/authContext/authContext";
 import type { CartItem } from "../../types/types";
@@ -20,6 +21,7 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
     loading,
   } = useCart();
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -59,9 +61,9 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
   };
 
   const handleProceedToCheckout = () => {
-    // TODO: Navigate to checkout page
-    console.log("Proceeding to checkout...");
-    alert("Checkout flow will be implemented next!");
+    onClose(); // close the cart popup first
+    document.body.classList.remove("modal-open");
+    navigate("/checkout");
   };
 
   return (
@@ -138,6 +140,7 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
                   Clear Cart
                 </button>
               )}
+
               {/* Cart Items */}
               <div className="cart-items">
                 {cartItems.map((item) => (
@@ -152,9 +155,13 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
                             viewBox="0 0 24 24"
                             width="32"
                             height="32"
-                            fill="currentColor"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
                           >
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
                           </svg>
                         </div>
                       )}
@@ -165,19 +172,20 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
                       <h3 className="cart-item-name">{item.dishName}</h3>
                       <p className="cart-item-category">{item.category}</p>
 
-                      {/* Special Instructions */}
                       {item.specialInstructions && (
                         <p className="cart-item-instructions">
                           <strong>Note:</strong> {item.specialInstructions}
                         </p>
                       )}
 
-                      {/* Sizes and Quantities */}
+                      {/* Size / Quantity rows */}
                       <div className="cart-item-sizes">
-                        {item.quantities.map((qty, idx) => (
-                          <div key={idx} className="cart-item-size-row">
+                        {item.quantities.map((qty) => (
+                          <div key={qty.size} className="cart-item-size-row">
                             <span className="size-label-cart">
-                              {qty.size} - ${qty.price.toFixed(2)}
+                              {qty.size.charAt(0).toUpperCase() +
+                                qty.size.slice(1)}{" "}
+                              — ${qty.price.toFixed(2)}
                             </span>
 
                             <div className="cart-quantity-controls">
