@@ -420,21 +420,21 @@ export default function Orders() {
 
       if (type === "approve") {
         await approveOrder(order.id);
-        // Send approval email to customer
-        const updatedOrder = { ...order, status: "active" as const };
-        await emailService.sendOrderApprovedToCustomer(updatedOrder);
+        const { getOrderById } = await import("../services/orderService");
+        const updatedOrder = await getOrderById(order.id);
+        if (updatedOrder) {
+          await emailService.sendOrderApprovedToCustomer(updatedOrder);
+        }
       } else if (type === "decline") {
         await declineOrder(order.id, declineNote.trim() || undefined);
-        // Send decline email to customer
-        const updatedOrder = {
-          ...order,
-          status: "declined" as const,
-          adminNotes: declineNote.trim(),
-        };
-        await emailService.sendOrderDeclinedToCustomer(
-          updatedOrder,
-          declineNote.trim() || undefined,
-        );
+        const { getOrderById } = await import("../services/orderService");
+        const updatedOrder = await getOrderById(order.id);
+        if (updatedOrder) {
+          await emailService.sendOrderDeclinedToCustomer(
+            updatedOrder,
+            declineNote.trim() || undefined,
+          );
+        }
       } else if (type === "deliver") {
         await markOrderDelivered(order.id);
       }

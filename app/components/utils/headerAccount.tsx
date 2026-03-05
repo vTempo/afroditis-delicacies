@@ -2,6 +2,8 @@ import {
   getUserFavorites,
   removeFavorite,
 } from "../../services/favoritesService";
+import { getOrdersByUser } from "../../services/orderService";
+import type { Order } from "../../types/types";
 import { getMenuData } from "../../services/menuService";
 import type { MenuItem } from "../../types/types";
 import { useState, useEffect } from "react";
@@ -65,6 +67,18 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
   const [favoriteItems, setFavoriteItems] = useState<MenuItem[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const [orderHistory, setOrderHistory] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentView !== "orderHistory" || !user) return;
+    setOrdersLoading(true);
+    getOrdersByUser(user.uid)
+      .then(setOrderHistory)
+      .catch(console.error)
+      .finally(() => setOrdersLoading(false));
+  }, [currentView, user]);
 
   // Add useEffect to load when navigating to favorites view:
   useEffect(() => {
@@ -556,13 +570,6 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                   <div className="favorites-list">
                     {favoriteItems.map((item) => (
                       <div key={item.id} className="favorite-item">
-                        {item.imgPath && (
-                          <img
-                            src={item.imgPath}
-                            alt={item.name}
-                            className="favorite-item-img"
-                          />
-                        )}
                         <div className="favorite-item-info">
                           <span className="favorite-item-name">
                             {item.name}
@@ -597,10 +604,96 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
 
             {currentView === "orderHistory" && (
               <div className="order-history-view">
-                <p className="empty-state">No orders yet.</p>
-                <p className="empty-state-hint">
-                  Place your first order to see your order history here!
-                </p>
+                {ordersLoading ? (
+                  <p className="empty-state">Loading your orders...</p>
+                ) : orderHistory.length === 0 ? (
+                  <>
+                    <p className="empty-state">No orders yet.</p>
+                    <p className="empty-state-hint">
+                      Place your first order to see your order history here!
+                    </p>
+                  </>
+                ) : (
+                  <div className="order-history-list">
+                    {orderHistory.map((order) => {
+                      const statusLabel =
+                        {
+                          pending: "Pending",
+                          active: "Approved",
+                          declined: "Declined",
+                          delivered: "Delivered",
+                        }[order.status] ?? order.status;
+                      const statusClass =
+                        {
+                          pending: "order-history-status-pending",
+                          active: "order-history-status-active",
+                          declined: "order-history-status-declined",
+                          delivered: "order-history-status-delivered",
+                        }[order.status] ?? "";
+                      return (
+                        <div key={order.id} className="order-history-card">
+                          <div className="order-history-card-header">
+                            <span className="order-history-code">
+                              {order.orderCode}
+                            </span>
+                            <span
+                              className={`order-history-status ${statusClass}`}
+                            >
+                              {statusLabel}
+                            </span>
+                          </div>
+                          <div className="order-history-card-body">
+                            <p className="order-history-date">
+                              Placed:{" "}
+                              {new Date(order.orderDate).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )}
+                            </p>
+                            <p className="order-history-delivery">
+                              Delivery:{" "}
+                              {new Date(order.deliveryDate).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                },
+                              )}{" "}
+                              at {order.deliveryTime}
+                            </p>
+                            <div className="order-history-items">
+                              {order.items.map((item, i) => (
+                                <span
+                                  key={i}
+                                  className="order-history-item-name"
+                                >
+                                  {item.dishName}
+                                  {i < order.items.length - 1 ? ", " : ""}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="order-history-footer">
+                              <span className="order-history-total">
+                                ${order.subtotal.toFixed(2)}
+                              </span>
+                              {order.status === "declined" &&
+                                order.adminNotes && (
+                                  <p className="order-history-decline-note">
+                                    Reason: {order.adminNotes}
+                                  </p>
+                                )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 

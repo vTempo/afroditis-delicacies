@@ -636,7 +636,7 @@ export default function Checkout() {
                     <span>PayPal</span>
                     {paymentMethod === "paypal" && (
                       <a
-                        href="https://paypal.me/afroditisdelicacies"
+                        href="https://paypal.me/AfroditiSDeli"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="payment-link"
@@ -655,7 +655,7 @@ export default function Checkout() {
                     <span>Venmo</span>
                     {paymentMethod === "venmo" && (
                       <a
-                        href="https://venmo.com/afroditisdelicacies"
+                        href="https://venmo.com/Afroditi-Kritikou"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="payment-link"
@@ -671,7 +671,7 @@ export default function Checkout() {
                     onClick={() => setPaymentMethod("pay_on_delivery")}
                   >
                     <span className="payment-option-icon">🤝</span>
-                    <span>Pay on Delivery</span>
+                    <span>Cash or Check on Delivery</span>
                   </button>
                 </div>
               </section>
@@ -685,13 +685,6 @@ export default function Checkout() {
                 <div className="order-summary-items">
                   {cartItems.map((item) => (
                     <div key={item.id} className="summary-item">
-                      {item.imageUrl && (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.dishName}
-                          className="summary-item-img"
-                        />
-                      )}
                       <div className="summary-item-details">
                         <p className="summary-item-name">{item.dishName}</p>
                         {item.quantities.map((q) => (

@@ -705,3 +705,124 @@ body.modal-open {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ─── Order History ───────────────────────────────────────────────────────── */
+
+.order-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+.order-history-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: "Cormorant Garamond", serif;
+  background: white;
+  box-shadow: 0 2px 8px rgba(45, 51, 25, 0.05);
+}
+
+.order-history-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: #f5f5f0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.order-history-code {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2d3319;
+  letter-spacing: 0.5px;
+}
+
+.order-history-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.order-history-status-pending {
+  background: rgba(217, 194, 63, 0.15);
+  color: #8a7500;
+  border: 1px solid rgba(217, 194, 63, 0.4);
+}
+
+.order-history-status-active {
+  background: rgba(107, 126, 63, 0.12);
+  color: #4a5530;
+  border: 1px solid rgba(107, 126, 63, 0.3);
+}
+
+.order-history-status-declined {
+  background: rgba(199, 81, 70, 0.1);
+  color: #c75146;
+  border: 1px solid rgba(199, 81, 70, 0.3);
+}
+
+.order-history-status-delivered {
+  background: rgba(118, 164, 181, 0.15);
+  color: #2a6577;
+  border: 1px solid rgba(118, 164, 181, 0.35);
+}
+
+.order-history-card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.order-history-date,
+.order-history-delivery {
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  margin: 0;
+}
+
+.order-history-items {
+  margin-top: 0.35rem;
+  font-size: 1rem;
+  color: #2d3319;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.order-history-item-name {
+  font-size: 1rem;
+  color: #2d3319;
+}
+
+.order-history-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.order-history-total {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #6b7e3f;
+}
+
+.order-history-decline-note {
+  font-size: 0.875rem;
+  color: #c75146;
+  font-style: italic;
+  margin: 0;
+  width: 100%;
+}
