@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import type { Order } from "../types/types";
 
@@ -15,10 +15,6 @@ interface EmailNotificationData {
   body: string;
   type: string;
 }
-
-// Admin email — update this to the real business email
-const ADMIN_EMAIL = "afroditis.delicacies@gmail.com";
-
 class EmailService {
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -141,18 +137,33 @@ Requested Delivery:  ${this.formatDeliveryDate(order)}
 Delivery Address:
   ${order.deliveryAddress.fullAddress}
 
-Payment Method:  ${order.paymentMethod === "pay_on_delivery" ? "Pay on Delivery" : order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
+Payment Method:  ${order.paymentMethod === "pay_on_delivery" ? "Cash or Check on Delivery" : order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
 ─────────────────────────────────────────
 
 Log in to the website to approve or decline this order.
-      `.trim();
+    `.trim();
 
-      this.logEmailNotification({
-        to: ADMIN_EMAIL,
-        subject: `⚡ New Order — ${order.orderCode} from ${order.customerName}`,
-        body,
-        type: "new_order_admin",
-      });
+      // Fetch all admin emails from Firestore
+      const adminsSnap = await getDocs(
+        query(collection(db, "users"), where("role", "==", "admin")),
+      );
+
+      if (adminsSnap.empty) {
+        console.warn("No admin users found in Firestore.");
+        return;
+      }
+
+      for (const adminDoc of adminsSnap.docs) {
+        const adminEmail = adminDoc.data().email;
+        if (adminEmail) {
+          this.logEmailNotification({
+            to: adminEmail,
+            subject: `⚡ New Order — ${order.orderCode} from ${order.customerName}`,
+            body,
+            type: "new_order_admin",
+          });
+        }
+      }
     } catch (error) {
       console.error("Error sending admin order notification:", error);
     }
@@ -280,7 +291,7 @@ This email confirms that your password for Afroditi's Delicacies has been succes
 Account Email: ${email}
 Changed On: ${timestamp}
 
-If you did not make this change, please contact us immediately at ${ADMIN_EMAIL} or reset your password right away.
+please contact us immediately at afroditis.delicacies@gmail.com or reset your password right away.
 
 Best regards,
 The Afroditi's Delicacies Team
