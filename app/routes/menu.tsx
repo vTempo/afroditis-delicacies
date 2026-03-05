@@ -437,7 +437,6 @@ export default function Menu() {
   // Filter items based on selected category and admin status
   // Non-admins only see available items
   const getFilteredItems = () => {
-    console.log(import.meta.env.VITE_MAPBOX_TOKEN);
     let items =
       selectedCategory === "Full Menu"
         ? menuItems
