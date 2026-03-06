@@ -2,7 +2,12 @@ import {
   getUserFavorites,
   removeFavorite,
 } from "../../services/favoritesService";
-import { getOrdersByUser } from "../../services/orderService";
+import {
+  getOrdersByUser,
+  subscribeToBlockedDays,
+  blockDay,
+  unblockDay,
+} from "../../services/orderService";
 import type { Order } from "../../types/types";
 import { getMenuData } from "../../services/menuService";
 import type { MenuItem } from "../../types/types";
@@ -20,7 +25,12 @@ interface HeaderAccountProps {
   onClose: () => void;
 }
 
-type ProfileView = "main" | "favorites" | "orderHistory" | "accountSettings";
+type ProfileView =
+  | "main"
+  | "favorites"
+  | "orderHistory"
+  | "accountSettings"
+  | "manageCalendar";
 
 const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
   const {
@@ -36,6 +46,8 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
     changePassword,
     getOrders,
   } = useAuth();
+
+  const isAdmin = user && userProfile?.role === "admin";
 
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -70,6 +82,16 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
 
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
+  const [blockedDays, setBlockedDays] = useState<string[]>([]);
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
+  const [calendarLoading, setCalendarLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentView !== "manageCalendar") return;
+    const unsub = subscribeToBlockedDays(setBlockedDays);
+    return () => unsub();
+  }, [currentView]);
 
   useEffect(() => {
     if (currentView !== "orderHistory" || !user) return;
@@ -113,6 +135,71 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
       });
     }
   }, [userProfile, user]);
+
+  // ── Admin calendar helpers ──
+  function calendarDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  }
+
+  function buildAdminCalendarDays(
+    year: number,
+    month: number,
+  ): (Date | null)[] {
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: (Date | null)[] = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let d = 1; d <= daysInMonth; d++) days.push(new Date(year, month, d));
+    return days;
+  }
+
+  const ADMIN_MONTH_NAMES = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const ADMIN_DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const handleToggleDay = async (day: Date) => {
+    const key = calendarDateKey(day);
+    setCalendarLoading(true);
+    try {
+      if (blockedDays.includes(key)) {
+        await unblockDay(day);
+      } else {
+        await blockDay(day);
+      }
+    } catch (err) {
+      console.error("Failed to toggle day:", err);
+    } finally {
+      setCalendarLoading(false);
+    }
+  };
+
+  const adminCalendarDays = buildAdminCalendarDays(calendarYear, calendarMonth);
+
+  const prevAdminMonth = () => {
+    if (calendarMonth === 0) {
+      setCalendarMonth(11);
+      setCalendarYear((y) => y - 1);
+    } else setCalendarMonth((m) => m - 1);
+  };
+
+  const nextAdminMonth = () => {
+    if (calendarMonth === 11) {
+      setCalendarMonth(0);
+      setCalendarYear((y) => y + 1);
+    } else setCalendarMonth((m) => m + 1);
+  };
 
   const handleRemoveFavorite = async (menuItemId: string) => {
     if (!user) return;
@@ -421,7 +508,7 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
             )}
             <h2 className="auth-modal-title">
               {currentView === "main" && "My Account"}
-              {currentView === "favorites" && "My Favorites"}
+              {currentView === "manageCalendar" && "Manage Calendar"}
               {currentView === "orderHistory" && "Order History"}
               {currentView === "accountSettings" && "Account Settings"}
             </h2>
@@ -454,34 +541,65 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                 {success && <div className="success-message">{success}</div>}
 
                 <div className="profile-menu">
-                  <button
-                    className="profile-menu-item"
-                    onClick={() => navigateToView("favorites")}
-                  >
-                    <svg
-                      className="menu-icon"
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="20"
+                  {isAdmin ? (
+                    <button
+                      className="profile-menu-item"
+                      onClick={() => navigateToView("manageCalendar")}
                     >
-                      <path
-                        fill="currentColor"
-                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                      />
-                    </svg>
-                    <span>Favorites</span>
-                    <svg
-                      className="chevron"
-                      viewBox="0 0 24 24"
-                      width="20"
-                      height="20"
+                      <svg
+                        className="menu-icon"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M19 3h-1V1h-2v2H8V1H6v2H5C3.89 3 3 3.9 3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"
+                        />
+                      </svg>
+                      <span>Manage Calendar</span>
+                      <svg
+                        className="chevron"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                        />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button
+                      className="profile-menu-item"
+                      onClick={() => navigateToView("favorites")}
                     >
-                      <path
-                        fill="currentColor"
-                        d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        className="menu-icon"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                        />
+                      </svg>
+                      <span>Favorites</span>
+                      <svg
+                        className="chevron"
+                        viewBox="0 0 24 24"
+                        width="20"
+                        height="20"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                        />
+                      </svg>
+                    </button>
+                  )}
 
                   <button
                     className="profile-menu-item"
@@ -599,6 +717,73 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {currentView === "manageCalendar" && (
+              <div className="manage-calendar-view">
+                <p className="calendar-manage-note">
+                  Click any date to block or unblock it for deliveries. Blocked
+                  dates will be unavailable to customers at checkout.
+                </p>
+
+                <div className="admin-cal-nav">
+                  <button
+                    className="admin-cal-nav-btn"
+                    onClick={prevAdminMonth}
+                  >
+                    ‹
+                  </button>
+                  <span className="admin-cal-month-label">
+                    {ADMIN_MONTH_NAMES[calendarMonth]} {calendarYear}
+                  </span>
+                  <button
+                    className="admin-cal-nav-btn"
+                    onClick={nextAdminMonth}
+                  >
+                    ›
+                  </button>
+                </div>
+
+                <div className="admin-cal-grid">
+                  {ADMIN_DAY_NAMES.map((d) => (
+                    <div key={d} className="admin-cal-day-name">
+                      {d}
+                    </div>
+                  ))}
+                  {adminCalendarDays.map((day, i) => {
+                    if (!day) return <div key={`empty-${i}`} />;
+                    const key = calendarDateKey(day);
+                    const isBlocked = blockedDays.includes(key);
+                    const isPast =
+                      day < new Date(new Date().setHours(0, 0, 0, 0));
+                    return (
+                      <button
+                        key={day.toISOString()}
+                        className={`admin-cal-day ${isBlocked ? "blocked" : "open"} ${isPast ? "past" : ""}`}
+                        onClick={() => !isPast && handleToggleDay(day)}
+                        disabled={calendarLoading || isPast}
+                        title={
+                          isBlocked ? "Click to unblock" : "Click to block"
+                        }
+                      >
+                        {day.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="admin-cal-legend">
+                  <span className="legend-item">
+                    <span className="legend-dot open-dot" /> Available
+                  </span>
+                  <span className="legend-item">
+                    <span className="legend-dot blocked-dot" /> Blocked
+                  </span>
+                  <span className="legend-item">
+                    <span className="legend-dot past-dot" /> Past
+                  </span>
+                </div>
               </div>
             )}
 
