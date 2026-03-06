@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import Header from "../components/utils/header";
 import Footer from "../components/utils/footer";
@@ -6,7 +6,13 @@ import AddressAutocomplete from "../components/addressAutocomplete/AddressAutoco
 import { useAuth } from "../context/authContext/authContext";
 import { useUserProfile } from "../context/userContext/userProfile";
 import { useCart } from "../context/cartContext/cartContext";
-import { placeOrder, getBookedTimesForDate } from "../services/orderService";
+import {
+  placeOrder,
+  getBookedTimesForDate,
+  reserveTimeSlot,
+  releaseReservation,
+  subscribeToBlockedDays,
+} from "../services/orderService";
 import { emailService } from "../services/emailService";
 import { addressService } from "../services/addressService";
 import type { AddressDetails } from "../services/addressService";
@@ -46,12 +52,13 @@ function timeToMinutes(time: string): number {
 }
 
 // Is a slot within ±60 minutes of any booked time?
-function isSlotBlocked(slot: string, bookedTimes: string[]): boolean {
+function isWithinBuffer(slot: string, times: string[]): boolean {
   const slotMins = timeToMinutes(slot);
-  return bookedTimes.some((booked) => {
-    const bookedMins = timeToMinutes(booked);
-    return Math.abs(slotMins - bookedMins) < 60;
-  });
+  return times.some((t) => Math.abs(slotMins - timeToMinutes(t)) < 60);
+}
+
+function dateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 // Haversine distance in miles between two lat/lng points
@@ -158,6 +165,12 @@ export default function Checkout() {
   const [calendarMonth, setCalendarMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [blockedDays, setBlockedDays] = useState<string[]>([]);
+  const [reservedTimes, setReservedTimes] = useState<string[]>([]);
+  const reservationIdRef = useRef<string | null>(null);
+  const reservationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [timesLoading, setTimesLoading] = useState(false);
 
@@ -207,13 +220,35 @@ export default function Checkout() {
 
   // ── Load booked times when date changes ──
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!selectedDate) {
+      setBookedTimes([]);
+      setReservedTimes([]);
+      return;
+    }
+    let cancelled = false;
     setTimesLoading(true);
-    setSelectedTime(null);
-    getBookedTimesForDate(selectedDate)
-      .then(setBookedTimes)
-      .finally(() => setTimesLoading(false));
-  }, [selectedDate]);
+    getBookedTimesForDate(selectedDate, user?.uid).then(
+      ({ booked, reserved }) => {
+        if (!cancelled) {
+          setBookedTimes(booked);
+          setReservedTimes(reserved);
+          setTimesLoading(false);
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDate, user?.uid]);
+
+  useEffect(() => {
+    return () => {
+      if (reservationIdRef.current)
+        releaseReservation(reservationIdRef.current);
+      if (reservationTimeoutRef.current)
+        clearTimeout(reservationTimeoutRef.current);
+    };
+  }, []);
 
   // ── Countdown after success ──
   useEffect(() => {
@@ -225,6 +260,11 @@ export default function Checkout() {
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [orderSuccess, countdown, navigate]);
+
+  useEffect(() => {
+    const unsub = subscribeToBlockedDays(setBlockedDays);
+    return () => unsub();
+  }, []);
 
   // ── Address validation (50-mile check) ──
   const handleAddressSelect = async (addr: AddressDetails) => {
@@ -284,7 +324,9 @@ export default function Checkout() {
   const isDayAvailable = (day: Date): boolean => {
     const d = new Date(day);
     d.setHours(0, 0, 0, 0);
-    return d >= earliestDate;
+    if (d < earliestDate) return false;
+    if (blockedDays.includes(dateKey(d))) return false;
+    return true;
   };
 
   const isDaySelected = (day: Date): boolean => {
@@ -296,10 +338,48 @@ export default function Checkout() {
     );
   };
 
-  const handleDayClick = (day: Date) => {
+  const handleDayClick = async (day: Date) => {
     if (!isDayAvailable(day)) return;
+    if (reservationIdRef.current) {
+      await releaseReservation(reservationIdRef.current);
+      reservationIdRef.current = null;
+    }
+    if (reservationTimeoutRef.current)
+      clearTimeout(reservationTimeoutRef.current);
     setSelectedDate(day);
     setSelectedTime(null);
+  };
+
+  const handleTimeSelect = async (slot: string) => {
+    if (!selectedDate || !user) return;
+    if (reservationIdRef.current) {
+      await releaseReservation(reservationIdRef.current);
+      reservationIdRef.current = null;
+    }
+    if (reservationTimeoutRef.current)
+      clearTimeout(reservationTimeoutRef.current);
+    setSelectedTime(slot);
+    try {
+      const resId = await reserveTimeSlot(selectedDate, slot, user.uid);
+      reservationIdRef.current = resId;
+      reservationTimeoutRef.current = setTimeout(
+        async () => {
+          reservationIdRef.current = null;
+          setSelectedTime(null);
+          if (selectedDate) {
+            const { booked, reserved } = await getBookedTimesForDate(
+              selectedDate,
+              user?.uid,
+            );
+            setBookedTimes(booked);
+            setReservedTimes(reserved);
+          }
+        },
+        15 * 60 * 1000,
+      );
+    } catch (err) {
+      console.error("Failed to reserve time slot:", err);
+    }
   };
 
   // ── Submit ──
@@ -344,6 +424,15 @@ export default function Checkout() {
       return;
     }
 
+    const { booked } = await getBookedTimesForDate(selectedDate, user?.uid);
+    if (isWithinBuffer(selectedTime, booked)) {
+      setSubmitError(
+        "This time slot was just taken. Please choose a different time.",
+      );
+      setSelectedTime(null);
+      setBookedTimes(booked);
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -389,6 +478,10 @@ export default function Checkout() {
         await emailService.sendNewOrderNotificationToAdmin(order);
       }
 
+      if (reservationIdRef.current) {
+        await releaseReservation(reservationIdRef.current);
+        reservationIdRef.current = null;
+      }
       // Clear cart
       await clearCart();
 
@@ -598,22 +691,34 @@ export default function Checkout() {
                     {timesLoading ? (
                       <p className="times-loading">Loading available times…</p>
                     ) : (
-                      <div className="time-slots-grid">
-                        {ALL_TIME_SLOTS.map((slot) => {
-                          const blocked = isSlotBlocked(slot, bookedTimes);
-                          const isSelected = selectedTime === slot;
-                          return (
-                            <button
-                              key={slot}
-                              className={`time-slot ${blocked ? "blocked" : "open"} ${isSelected ? "selected" : ""}`}
-                              onClick={() => !blocked && setSelectedTime(slot)}
-                              disabled={blocked}
-                            >
-                              {slot}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <>
+                        <div className="time-slots-grid">
+                          {ALL_TIME_SLOTS.map((slot) => {
+                            const blocked =
+                              isWithinBuffer(slot, bookedTimes) ||
+                              isWithinBuffer(slot, reservedTimes);
+                            const isSelected = selectedTime === slot;
+                            return (
+                              <button
+                                key={slot}
+                                className={`time-slot ${blocked ? "blocked" : "open"} ${isSelected ? "selected" : ""}`}
+                                onClick={() =>
+                                  !blocked && handleTimeSelect(slot)
+                                }
+                                disabled={blocked}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {selectedTime && (
+                          <p className="reservation-notice">
+                            ⏱ Your slot is reserved for 15 minutes. Please
+                            complete your order before it expires.
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

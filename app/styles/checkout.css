@@ -669,3 +669,22 @@
     padding: 2.5rem 1.5rem;
   }
 }
+
+.calendar-day.admin-blocked {
+  background: #f5eded;
+  color: #c0a0a0;
+  cursor: not-allowed;
+  border: 2px solid rgba(199, 81, 70, 0.15);
+}
+
+.reservation-notice {
+  margin-top: 0.875rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(217, 194, 63, 0.12);
+  border: 1px solid rgba(217, 194, 63, 0.4);
+  border-radius: 8px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.95rem;
+  color: #7a6a1a;
+  line-height: 1.4;
+}

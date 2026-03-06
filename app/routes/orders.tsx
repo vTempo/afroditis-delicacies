@@ -125,7 +125,7 @@ function OrderRow({
   return (
     <div className={`order-row ${order.isNewForAdmin ? "order-row-new" : ""}`}>
       {/* ── Summary Row (always visible) ── */}
-      <div className="order-row-summary" onClick={handleToggle}>
+      <div className="order-row-summary">
         <div className="order-row-left">
           {order.isNewForAdmin && (
             <span className="new-dot" title="New order" />

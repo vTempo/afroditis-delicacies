@@ -3,13 +3,14 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDocs,
   query,
   where,
-  orderBy,
   onSnapshot,
   Timestamp,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import type {
@@ -49,6 +50,11 @@ function docToOrder(id: string, data: any): Order {
     isNewForAdmin: data.isNewForAdmin ?? true,
     updatedAt: data.updatedAt?.toDate?.() ?? new Date(data.updatedAt),
   };
+}
+
+/** Format a Date as "YYYY-MM-DD" key using local time */
+function dateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 // ─── Place Order ─────────────────────────────────────────────────────────────
@@ -186,34 +192,109 @@ export function getNewOrderCount(
  * Returns all time slots already booked on a given date
  * (i.e. within ±1 hour of any approved order's deliveryTime).
  */
-export async function getBookedTimesForDate(date: Date): Promise<string[]> {
+export async function getBookedTimesForDate(
+  date: Date,
+  currentUserId?: string,
+): Promise<{ booked: string[]; reserved: string[] }> {
+  const key = dateKey(date);
   try {
-    // Get start and end of the selected date
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const q = query(
+    const ordersQ = query(
       collection(db, "orders"),
       where("status", "==", "active"),
       where("deliveryDate", ">=", Timestamp.fromDate(startOfDay)),
       where("deliveryDate", "<=", Timestamp.fromDate(endOfDay)),
     );
+    const ordersSnap = await getDocs(ordersQ);
+    const booked: string[] = ordersSnap.docs
+      .map((d) => d.data().deliveryTime as string)
+      .filter(Boolean);
 
-    const snap = await getDocs(q);
-    const bookedTimes: string[] = [];
-
-    snap.docs.forEach((d) => {
-      const bookedTime = d.data().deliveryTime as string;
-      if (bookedTime) bookedTimes.push(bookedTime);
+    const resQ = query(
+      collection(db, "timeReservations"),
+      where("dateKey", "==", key),
+    );
+    const resSnap = await getDocs(resQ);
+    const reserved: string[] = [];
+    resSnap.docs.forEach((d) => {
+      const data = d.data();
+      if (data.userId === currentUserId) return;
+      const expiresAt: Date = data.expiresAt?.toDate?.() ?? new Date(0);
+      if (expiresAt > new Date()) reserved.push(data.time as string);
     });
 
-    return bookedTimes;
+    return { booked, reserved };
   } catch (error) {
     console.error("Error fetching booked times:", error);
+    return { booked: [], reserved: [] };
+  }
+}
+
+// ─── Time Slot Reservations ───────────────────────────────────────────────────
+
+export async function reserveTimeSlot(
+  date: Date,
+  time: string,
+  userId: string,
+): Promise<string> {
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const docRef = await addDoc(collection(db, "timeReservations"), {
+    dateKey: dateKey(date),
+    time,
+    userId,
+    expiresAt: Timestamp.fromDate(expiresAt),
+  });
+  return docRef.id;
+}
+
+export async function releaseReservation(reservationId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, "timeReservations", reservationId));
+  } catch {
+    // silent — may already be gone
+  }
+}
+
+// ─── Admin: Blocked Days ──────────────────────────────────────────────────────
+
+const BLOCKED_DAYS_DOC = doc(db, "adminSettings", "blockedDays");
+
+export async function getBlockedDays(): Promise<string[]> {
+  try {
+    const snap = await getDoc(BLOCKED_DAYS_DOC);
+    if (!snap.exists()) return [];
+    return (snap.data().days as string[]) ?? [];
+  } catch {
     return [];
   }
+}
+
+export function subscribeToBlockedDays(
+  callback: (days: string[]) => void,
+): () => void {
+  return onSnapshot(BLOCKED_DAYS_DOC, (snap) => {
+    callback(snap.exists() ? ((snap.data().days as string[]) ?? []) : []);
+  });
+}
+
+export async function blockDay(date: Date): Promise<void> {
+  const key = dateKey(date);
+  const snap = await getDoc(BLOCKED_DAYS_DOC);
+  const existing: string[] = snap.exists() ? (snap.data().days ?? []) : [];
+  if (!existing.includes(key)) {
+    await setDoc(BLOCKED_DAYS_DOC, { days: [...existing, key] });
+  }
+}
+
+export async function unblockDay(date: Date): Promise<void> {
+  const key = dateKey(date);
+  const snap = await getDoc(BLOCKED_DAYS_DOC);
+  const existing: string[] = snap.exists() ? (snap.data().days ?? []) : [];
+  await setDoc(BLOCKED_DAYS_DOC, { days: existing.filter((d) => d !== key) });
 }
 
 // ─── Admin Actions ────────────────────────────────────────────────────────────
