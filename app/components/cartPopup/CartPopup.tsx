@@ -268,9 +268,6 @@ const CartPopup: React.FC<CartPopupProps> = ({ isOpen, onClose }) => {
                   ${cartTotal.toFixed(2)}
                 </span>
               </div>
-              <p className="cart-footer-note">
-                Delivery fee will be calculated at checkout
-              </p>
             </div>
 
             <button

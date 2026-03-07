@@ -585,11 +585,6 @@ export default function Orders() {
         <div className="orders-container">
           <div className="orders-header">
             <h1 className="orders-title">Orders</h1>
-            <p className="orders-subtitle">
-              {loading
-                ? "Loading orders…"
-                : `${orders.length} total order${orders.length !== 1 ? "s" : ""}`}
-            </p>
           </div>
 
           {loading ? (
