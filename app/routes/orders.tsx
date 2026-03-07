@@ -40,6 +40,22 @@ function formatOrderDate(date: Date): string {
   });
 }
 
+/**
+ * Returns true if the delivery date + time has already passed.
+ * Used to flag overdue orders for admin attention.
+ */
+function isOrderExpired(order: Order): boolean {
+  const [timePart, ampm] = order.deliveryTime.split(" ");
+  const [h, m] = timePart.split(":").map(Number);
+  let hours = h;
+  if (ampm === "PM" && h !== 12) hours += 12;
+  if (ampm === "AM" && h === 12) hours = 0;
+
+  const deliveryDateTime = new Date(order.deliveryDate);
+  deliveryDateTime.setHours(hours, m, 0, 0);
+  return deliveryDateTime < new Date();
+}
+
 function paymentLabel(method: string): string {
   if (method === "pay_on_delivery") return "Pay on Delivery";
   return method.charAt(0).toUpperCase() + method.slice(1);
@@ -130,6 +146,19 @@ function OrderRow({
           {order.isNewForAdmin && (
             <span className="new-dot" title="New order" />
           )}
+          {isOrderExpired(order) &&
+            (order.status === "pending" || order.status === "active") && (
+              <span
+                className="expired-badge"
+                title={
+                  order.status === "pending"
+                    ? "Delivery window has passed — consider declining this order"
+                    : "Delivery window has passed — mark as delivered or decline"
+                }
+              >
+                ⚠ Overdue
+              </span>
+            )}
           <span className="order-code">{order.orderCode}</span>
           <span className="order-customer">{order.customerName}</span>
           <span className="order-city">{order.deliveryAddress.city}</span>

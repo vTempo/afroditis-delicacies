@@ -97,15 +97,98 @@ async function geocodeAddress(
   }
 }
 
-// Earliest available delivery date based on total item count
+// The earliest delivery time slot available (10 AM) as minutes since midnight.
+const FIRST_SLOT_MINUTES = 10 * 60; // 10:00 AM
+
+/**
+ * Returns the earliest calendar DATE a customer may select.
+ *
+ * Logic: compute the exact earliest moment (now + lead-time hours), then
+ * check if any delivery slot (10 AM – 10 PM) exists on that day that is
+ * still after the cutoff. If not, advance to the next day.
+ *
+ * Example: order placed at 11 PM, 1-item order → cutoff is 11 PM next day.
+ * No slots on "next day" are after 11 PM (last slot is 10 PM), so the
+ * earliest selectable date becomes the day after next.
+ */
 function getEarliestDeliveryDate(totalItems: number): Date {
   const now = new Date();
   let hoursToAdd = 24;
   if (totalItems >= 4 && totalItems <= 6) hoursToAdd = 72;
   if (totalItems >= 7) hoursToAdd = 120;
-  const earliest = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000);
-  earliest.setHours(0, 0, 0, 0);
-  return earliest;
+
+  const cutoff = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000);
+  const cutoffMins = cutoff.getHours() * 60 + cutoff.getMinutes();
+
+  // Start from the calendar day of the cutoff moment.
+  const candidate = new Date(cutoff);
+  candidate.setHours(0, 0, 0, 0);
+
+  // If the cutoff time is at or after the last slot (10 PM = 1320 min),
+  // no slot on that day works — advance one day.
+  const LAST_SLOT_MINUTES = 22 * 60; // 10:00 PM
+  if (cutoffMins >= LAST_SLOT_MINUTES) {
+    candidate.setDate(candidate.getDate() + 1);
+  }
+
+  return candidate;
+}
+
+/**
+ * For the earliest selectable date only, returns the minimum time in
+ * minutes-since-midnight that a slot must be AT OR AFTER to be selectable.
+ * Returns 0 for any later date (all slots available).
+ */
+function getEarliestSlotMinutes(
+  totalItems: number,
+  selectedDate: Date,
+): number {
+  const now = new Date();
+  let hoursToAdd = 24;
+  if (totalItems >= 4 && totalItems <= 6) hoursToAdd = 72;
+  if (totalItems >= 7) hoursToAdd = 120;
+
+  const cutoff = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000);
+
+  const cutoffDay = new Date(cutoff);
+  cutoffDay.setHours(0, 0, 0, 0);
+
+  const selDay = new Date(selectedDate);
+  selDay.setHours(0, 0, 0, 0);
+
+  // Only restrict slots on the exact cutoff day.
+  if (selDay.getTime() === cutoffDay.getTime()) {
+    return cutoff.getHours() * 60 + cutoff.getMinutes();
+  }
+  return 0;
+}
+
+/**
+ * For the earliest selectable date, return the minimum delivery time in
+ * minutes-since-midnight that satisfies the lead-time requirement.
+ * For all later dates this returns 0 (any time is fine).
+ */
+function getEarliestTimeMinutes(
+  totalItems: number,
+  selectedDate: Date,
+): number {
+  const now = new Date();
+  let hoursToAdd = 24;
+  if (totalItems >= 4 && totalItems <= 6) hoursToAdd = 72;
+  if (totalItems >= 7) hoursToAdd = 120;
+
+  const earliestMoment = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000);
+
+  // Is the selected date the same calendar day as the earliest allowed moment?
+  const sel = new Date(selectedDate);
+  sel.setHours(0, 0, 0, 0);
+  const earliestDay = new Date(earliestMoment);
+  earliestDay.setHours(0, 0, 0, 0);
+
+  if (sel.getTime() === earliestDay.getTime()) {
+    return earliestMoment.getHours() * 60 + earliestMoment.getMinutes();
+  }
+  return 0;
 }
 
 // Build a calendar grid for a given month
@@ -223,6 +306,17 @@ export default function Checkout() {
 
   const earliestDate = getEarliestDeliveryDate(totalItems);
 
+  // If the cart changes and the selected date is no longer valid, clear it.
+  useEffect(() => {
+    if (!selectedDate) return;
+    const d = new Date(selectedDate);
+    d.setHours(0, 0, 0, 0);
+    if (d < earliestDate) {
+      setSelectedDate(null);
+      setSelectedTime(null);
+    }
+  }, [totalItems]);
+
   // ── Load booked times when date changes ──
   useEffect(() => {
     if (!selectedDate) {
@@ -254,6 +348,20 @@ export default function Checkout() {
         clearTimeout(reservationTimeoutRef.current);
     };
   }, []);
+
+  // Release reservation if cart is emptied from anywhere (e.g. cart popup)
+  useEffect(() => {
+    if (cartItems.length === 0 && reservationIdRef.current) {
+      releaseReservation(reservationIdRef.current);
+      reservationIdRef.current = null;
+      if (reservationTimeoutRef.current) {
+        clearTimeout(reservationTimeoutRef.current);
+        reservationTimeoutRef.current = null;
+      }
+      setSelectedTime(null);
+      setSelectedDate(null);
+    }
+  }, [cartItems.length]);
 
   // ── Countdown after success ──
   useEffect(() => {
@@ -402,7 +510,7 @@ export default function Checkout() {
             setReservedTimes(reserved);
           }
         },
-        15 * 60 * 1000,
+        10 * 60 * 1000, // 10-minute reservation window
       );
     } catch (err) {
       console.error("Failed to reserve time slot:", err);
@@ -767,10 +875,17 @@ export default function Checkout() {
                       <>
                         <div className="time-slots-grid">
                           {ALL_TIME_SLOTS.map((slot) => {
+                            const slotMins = timeToMinutes(slot);
+                            const minMins = selectedDate
+                              ? getEarliestSlotMinutes(totalItems, selectedDate)
+                              : 0;
+                            const tooEarly = minMins > 0 && slotMins <= minMins;
                             const blocked =
-                              isWithinBuffer(slot, bookedTimes) ||
-                              isWithinBuffer(slot, reservedTimes);
-                            const isSelected = selectedTime === slot;
+                              tooEarly ||
+                              bookedTimes.includes(slot) ||
+                              reservedTimes.includes(slot);
+                            const isSelected =
+                              !blocked && selectedTime === slot;
                             return (
                               <button
                                 key={slot}
@@ -787,7 +902,7 @@ export default function Checkout() {
                         </div>
                         {selectedTime && (
                           <p className="reservation-notice">
-                            ⏱ Your slot is reserved for 15 minutes. Please
+                            ⏱ Your slot is reserved for 10 minutes. Please
                             complete your order before it expires.
                           </p>
                         )}
