@@ -179,7 +179,11 @@ export default function Checkout() {
     null,
   );
 
-  // ── Submission ──
+  // ── Address mode ──
+  const hasProfileAddress = !!profile?.address?.street;
+  const [addressMode, setAddressMode] = useState<"profile" | "custom">(
+    "profile",
+  );
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -207,6 +211,7 @@ export default function Checkout() {
         country: addr.country || "United States",
         formattedAddress: formatted,
       });
+      setAddressMode("profile");
     }
   }, [profile, user]);
 
@@ -265,6 +270,28 @@ export default function Checkout() {
     const unsub = subscribeToBlockedDays(setBlockedDays);
     return () => unsub();
   }, []);
+
+  const handleAddressModeChange = (mode: "profile" | "custom") => {
+    setAddressMode(mode);
+    if (mode === "profile" && profile?.address?.street) {
+      const addr = profile.address;
+      const formatted = `${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`;
+      setAddressInputValue(formatted);
+      setAddressDetails({
+        street: addr.street,
+        city: addr.city,
+        state: addr.state,
+        zipCode: addr.zipCode,
+        country: addr.country || "United States",
+        formattedAddress: formatted,
+      });
+      setAddressError(null);
+    } else {
+      setAddressInputValue("");
+      setAddressDetails(null);
+      setAddressError(null);
+    }
+  };
 
   // ── Address validation (50-mile check) ──
   const handleAddressSelect = async (addr: AddressDetails) => {
@@ -595,19 +622,33 @@ export default function Checkout() {
                 <p className="checkout-section-note">
                   Must be within 50 miles of Bothell, WA.
                 </p>
-                <AddressAutocomplete
-                  onAddressSelect={handleAddressSelect}
-                  initialValue={addressInputValue}
-                  placeholder="Start typing your delivery address…"
-                  mapboxToken={MAPBOX_TOKEN}
-                />
-                {addressValidating && (
-                  <p className="address-validating">Validating address…</p>
+
+                {hasProfileAddress && (
+                  <div className="address-mode-toggle">
+                    <label className="address-radio-label">
+                      <input
+                        type="radio"
+                        name="addressMode"
+                        value="profile"
+                        checked={addressMode === "profile"}
+                        onChange={() => handleAddressModeChange("profile")}
+                      />
+                      <span>Use my saved address</span>
+                    </label>
+                    <label className="address-radio-label">
+                      <input
+                        type="radio"
+                        name="addressMode"
+                        value="custom"
+                        checked={addressMode === "custom"}
+                        onChange={() => handleAddressModeChange("custom")}
+                      />
+                      <span>Deliver to a different address</span>
+                    </label>
+                  </div>
                 )}
-                {addressError && (
-                  <p className="checkout-field-error">{addressError}</p>
-                )}
-                {addressDetails && !addressError && (
+
+                {addressMode === "profile" && hasProfileAddress ? (
                   <div className="address-confirmed">
                     <svg
                       viewBox="0 0 24 24"
@@ -620,8 +661,40 @@ export default function Checkout() {
                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                       <polyline points="22 4 12 14.01 9 11.01" />
                     </svg>
-                    {addressDetails.formattedAddress}
+                    {addressDetails?.formattedAddress}
                   </div>
+                ) : (
+                  <>
+                    <AddressAutocomplete
+                      onAddressSelect={handleAddressSelect}
+                      initialValue={addressInputValue}
+                      placeholder="Start typing your delivery address…"
+                      mapboxToken={MAPBOX_TOKEN}
+                    />
+                    {addressValidating && (
+                      <p className="address-validating">Validating address…</p>
+                    )}
+                    {addressDetails && !addressError && (
+                      <div className="address-confirmed">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                          <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        {addressDetails.formattedAddress}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {addressError && (
+                  <p className="checkout-field-error">{addressError}</p>
                 )}
               </section>
 
