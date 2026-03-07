@@ -509,6 +509,7 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
             <h2 className="auth-modal-title">
               {currentView === "main" && "My Account"}
               {currentView === "manageCalendar" && "Manage Calendar"}
+              {currentView === "favorites" && "My Favorites"}
               {currentView === "orderHistory" && "Order History"}
               {currentView === "accountSettings" && "Account Settings"}
             </h2>

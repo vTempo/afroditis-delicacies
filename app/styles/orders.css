@@ -377,6 +377,14 @@
   border-bottom: none;
 }
 
+.order-item-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
 .order-item-name {
   font-family: "Cormorant Garamond", serif;
   font-size: 1.05rem;
