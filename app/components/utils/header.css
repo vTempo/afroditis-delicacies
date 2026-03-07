@@ -71,11 +71,6 @@ header {
   cursor: pointer;
 }
 
-.nav-link:hover {
-  color: var(--primary-green);
-  text-decoration: none;
-}
-
 .nav-link::after {
   content: "";
   position: absolute;
@@ -86,10 +81,6 @@ header {
   background-color: var(--primary-green);
   transition: all 0.3s ease;
   transform: translateX(-50%);
-}
-
-.nav-link:hover::after {
-  width: 100%;
 }
 
 .nav-item {
@@ -131,7 +122,7 @@ header {
   fill: var(--primary-green);
 }
 
-.nav-button:hover .user-icon,
+.nav-button:hover .user-icon:hover,
 .nav-link:hover .cart-icon,
 .cart-button:hover .cart-icon {
   fill: var(--dark-green);
