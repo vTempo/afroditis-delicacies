@@ -608,9 +608,10 @@ export default function Menu() {
                     </div>
                   )}
 
-                  {hasTwoSizes && (
+                  {(hasTwoSizes ||
+                    items.some((i) => i.secondPrice && i.secondPrice > 0)) && (
                     <div className="size-headers">
-                      <span className="size-header">Large / Small</span>
+                      <span className="size-header">Small / Large</span>
                     </div>
                   )}
                 </div>
@@ -636,10 +637,10 @@ export default function Menu() {
                           }
                           onDragEnd={isAdmin ? handleDragEnd : undefined}
                           onClick={() =>
-                            !draggedItem && item.available
+                            !draggedItem && (isAdmin || item.available)
                               ? handleMenuItemClick(item, hasTwoSizes)
                               : undefined
-                          } // ← NEW LINE
+                          }
                           style={{
                             cursor: isAdmin
                               ? draggedItem
@@ -697,16 +698,19 @@ export default function Menu() {
                             </h3>
                           </div>
                           <div className="item-pricing">
-                            {hasTwoSizes ? (
+                            {(hasTwoSizes ||
+                              items.some(
+                                (i) => i.secondPrice && i.secondPrice > 0,
+                              )) &&
+                            item.secondPrice &&
+                            item.secondPrice > 0 ? (
                               <span className="price">
-                                ${item.price}.00 /{" "}
-                                {item.secondPrice
-                                  ? `$${item.secondPrice}.00`
-                                  : "-"}
+                                ${item.price.toFixed(2)} / $
+                                {item.secondPrice.toFixed(2)}
                               </span>
                             ) : (
                               <span className="price single-price">
-                                ${item.price}.00
+                                ${item.price.toFixed(2)}
                               </span>
                             )}
                           </div>
@@ -841,7 +845,7 @@ export default function Menu() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Price: *</label>
+                  <label>Small Price (Default): *</label>
                   <input
                     type="number"
                     placeholder="15"
@@ -854,7 +858,7 @@ export default function Menu() {
                 </div>
 
                 <div className="form-group">
-                  <label>Second Price: (optional)</label>
+                  <label>Large Price: (optional)</label>
                   <input
                     type="number"
                     placeholder="10"
@@ -1018,7 +1022,7 @@ export default function Menu() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Price: *</label>
+                  <label>Small Price (Default): *</label>
                   <input
                     type="number"
                     placeholder="15"
@@ -1031,7 +1035,7 @@ export default function Menu() {
                 </div>
 
                 <div className="form-group">
-                  <label>Second Price: (optional)</label>
+                  <label>Large Price: (optional)</label>
                   <input
                     type="number"
                     placeholder="10"

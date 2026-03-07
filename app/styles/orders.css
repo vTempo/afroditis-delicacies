@@ -681,3 +681,43 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.orders-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 0 0.5rem;
+  border-top: 1px solid rgba(107, 126, 63, 0.15);
+  margin-top: 0.5rem;
+}
+
+.pagination-btn {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  color: #6b7e3f;
+  background: white;
+  border: 1px solid #6b7e3f;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #6b7e3f;
+  color: white;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  color: #2d3319;
+  min-width: 50px;
+  text-align: center;
+}

@@ -293,6 +293,7 @@ function OrderRow({
 interface OrderSectionProps {
   title: string;
   orders: Order[];
+  totalOrders: Order[];
   emptyMessage: string;
   onApprove: (order: Order) => void;
   onDecline: (order: Order) => void;
@@ -300,11 +301,16 @@ interface OrderSectionProps {
   showDeliverButton?: boolean;
   showApproveDecline?: boolean;
   accentColor?: string;
+  hidden?: boolean;
+  page: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
 }
 
 function OrderSection({
   title,
   orders,
+  totalOrders,
   emptyMessage,
   onApprove,
   onDecline,
@@ -312,7 +318,15 @@ function OrderSection({
   showDeliverButton = false,
   showApproveDecline = false,
   accentColor = "#6b7e3f",
+  hidden = false,
+  page,
+  pageSize,
+  onPageChange,
 }: OrderSectionProps) {
+  if (hidden) return null;
+
+  const totalPages = Math.ceil(totalOrders.length / pageSize);
+
   return (
     <section className="orders-section">
       <div
@@ -320,25 +334,48 @@ function OrderSection({
         style={{ borderLeftColor: accentColor }}
       >
         <h2 className="orders-section-title">{title}</h2>
-        <span className="orders-section-count">{orders.length}</span>
+        <span className="orders-section-count">{totalOrders.length}</span>
       </div>
 
-      {orders.length === 0 ? (
+      {totalOrders.length === 0 ? (
         <p className="orders-empty">{emptyMessage}</p>
       ) : (
-        <div className="orders-list">
-          {orders.map((order) => (
-            <OrderRow
-              key={order.id}
-              order={order}
-              onApprove={onApprove}
-              onDecline={onDecline}
-              onDeliver={onDeliver}
-              showDeliverButton={showDeliverButton}
-              showApproveDecline={showApproveDecline}
-            />
-          ))}
-        </div>
+        <>
+          <div className="orders-list">
+            {orders.map((order) => (
+              <OrderRow
+                key={order.id}
+                order={order}
+                onApprove={onApprove}
+                onDecline={onDecline}
+                onDeliver={onDeliver}
+                showDeliverButton={showDeliverButton}
+                showApproveDecline={showApproveDecline}
+              />
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="orders-pagination">
+              <button
+                className="pagination-btn"
+                onClick={() => onPageChange(page - 1)}
+                disabled={page === 0}
+              >
+                ← Newer
+              </button>
+              <span className="pagination-info">
+                {page + 1} / {totalPages}
+              </span>
+              <button
+                className="pagination-btn"
+                onClick={() => onPageChange(page + 1)}
+                disabled={page >= totalPages - 1}
+              >
+                Older →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
@@ -362,6 +399,10 @@ export default function Orders() {
   } | null>(null);
   const [declineNote, setDeclineNote] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const PAGE_SIZE = 5;
+  const [newPage, setNewPage] = useState(0);
+  const [activePage, setActivePage] = useState(0);
+  const [inactivePage, setInactivePage] = useState(0);
 
   // Redirect non-admins
   useEffect(() => {
@@ -383,19 +424,69 @@ export default function Orders() {
   }, [isAdmin]);
 
   // ── Categorise orders ──
-  const newOrders = orders.filter((o) => o.status === "pending");
+  // Reset to page 0 if current page would be out of bounds (handled per section)
+  const newOrders = orders
+    .filter((o) => o.status === "pending")
+    .sort((a, b) => {
+      const dateA = new Date(
+        `${new Date(a.deliveryDate).toDateString()} ${a.deliveryTime}`,
+      );
+      const dateB = new Date(
+        `${new Date(b.deliveryDate).toDateString()} ${b.deliveryTime}`,
+      );
+      return dateA.getTime() - dateB.getTime();
+    });
   const activeOrders = orders
     .filter((o) => o.status === "active")
-    .sort(
-      (a, b) =>
-        new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime(),
-    );
+    .sort((a, b) => {
+      const dateA = new Date(
+        `${new Date(a.deliveryDate).toDateString()} ${a.deliveryTime}`,
+      );
+      const dateB = new Date(
+        `${new Date(b.deliveryDate).toDateString()} ${b.deliveryTime}`,
+      );
+      return dateA.getTime() - dateB.getTime();
+    });
   const inactiveOrders = orders
     .filter((o) => o.status === "declined" || o.status === "delivered")
-    .sort(
-      (a, b) =>
-        new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
-    );
+    .sort((a, b) => {
+      const dateA = new Date(
+        `${new Date(a.deliveryDate).toDateString()} ${a.deliveryTime}`,
+      );
+      const dateB = new Date(
+        `${new Date(b.deliveryDate).toDateString()} ${b.deliveryTime}`,
+      );
+      return dateB.getTime() - dateA.getTime();
+    });
+
+  // Clamp pages if orders shrink
+  const clampedNewPage = Math.min(
+    newPage,
+    Math.max(0, Math.ceil(newOrders.length / PAGE_SIZE) - 1),
+  );
+  const clampedActivePage = Math.min(
+    activePage,
+    Math.max(0, Math.ceil(activeOrders.length / PAGE_SIZE) - 1),
+  );
+  const clampedInactivePage = Math.min(
+    inactivePage,
+    Math.max(0, Math.ceil(inactiveOrders.length / PAGE_SIZE) - 1),
+  );
+
+  const pagedNewOrders = newOrders.slice(
+    clampedNewPage * PAGE_SIZE,
+    (clampedNewPage + 1) * PAGE_SIZE,
+  );
+  const pagedActiveOrders = activeOrders.slice(
+    clampedActivePage * PAGE_SIZE,
+    (clampedActivePage + 1) * PAGE_SIZE,
+  );
+  const pagedInactiveOrders = inactiveOrders.slice(
+    clampedInactivePage * PAGE_SIZE,
+    (clampedInactivePage + 1) * PAGE_SIZE,
+  );
+
+  // ── Handlers ──
 
   // ── Handlers ──
   const handleApprove = (order: Order) => {
@@ -486,36 +577,49 @@ export default function Orders() {
               {/* NEW */}
               <OrderSection
                 title="New Orders"
-                orders={newOrders}
+                orders={pagedNewOrders}
+                totalOrders={newOrders}
                 emptyMessage="No new orders waiting for review."
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
                 showApproveDecline={true}
                 accentColor="#d9a84e"
+                hidden={newOrders.length === 0}
+                page={clampedNewPage}
+                pageSize={PAGE_SIZE}
+                onPageChange={setNewPage}
               />
 
               {/* ACTIVE */}
               <OrderSection
                 title="Active Orders"
-                orders={activeOrders}
+                orders={pagedActiveOrders}
+                totalOrders={activeOrders}
                 emptyMessage="No active orders in progress."
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
                 showDeliverButton={true}
                 accentColor="#6b7e3f"
+                page={clampedActivePage}
+                pageSize={PAGE_SIZE}
+                onPageChange={setActivePage}
               />
 
               {/* INACTIVE */}
               <OrderSection
                 title="Inactive Orders"
-                orders={inactiveOrders}
+                orders={pagedInactiveOrders}
+                totalOrders={inactiveOrders}
                 emptyMessage="No completed or declined orders yet."
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
                 accentColor="#8a8a7a"
+                page={clampedInactivePage}
+                pageSize={PAGE_SIZE}
+                onPageChange={setInactivePage}
               />
             </div>
           )}

@@ -10,17 +10,17 @@
 }
 
 .menu-header h1 {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 2.8rem;
-  color: #6B7E3F;
+  color: #6b7e3f;
   margin-bottom: 0.8rem;
   font-weight: 600;
 }
 
 .menu-header p {
   font-size: 1rem;
-  color: #5A6B42;
-  font-family: 'Cormorant Garamond', serif;
+  color: #5a6b42;
+  font-family: "Cormorant Garamond", serif;
 }
 
 .menu-filters {
@@ -35,11 +35,11 @@
 /* ORIGINAL filter buttons - NOT CHANGED */
 .filter-btn {
   background: white;
-  border: 1px solid #8B9966;
-  color: #6B7E3F;
+  border: 1px solid #8b9966;
+  color: #6b7e3f;
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -48,13 +48,13 @@
 }
 
 .filter-btn:hover {
-  background: #A8B88A;
+  background: #a8b88a;
 }
 
 .filter-btn.active {
-  background: #6B7E3F;
+  background: #6b7e3f;
   color: white;
-  border-color: #6B7E3F;
+  border-color: #6b7e3f;
 }
 
 .menu-category {
@@ -67,16 +67,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #2D3319;
+  border-bottom: 2px solid #2d3319;
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
   position: relative;
 }
 
 .category-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.8rem;
-  color: #2D3319;
+  color: #2d3319;
   margin: 0;
   font-weight: 600;
   flex-shrink: 0;
@@ -115,12 +115,12 @@
 
 /* Edit Button - Green icon, flips on hover */
 .admin-icon-btn.edit-btn {
-  color: #6B7E3F;
-  border: 1px solid #6B7E3F;
+  color: #6b7e3f;
+  border: 1px solid #6b7e3f;
 }
 
 .admin-icon-btn.edit-btn:hover {
-  background: #6B7E3F;
+  background: #6b7e3f;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(107, 126, 63, 0.3);
@@ -128,12 +128,12 @@
 
 /* Delete Button - Red icon, flips on hover */
 .admin-icon-btn.delete-btn {
-  color: #C75146;
-  border: 1px solid #C75146;
+  color: #c75146;
+  border: 1px solid #c75146;
 }
 
 .admin-icon-btn.delete-btn:hover {
-  background: #C75146;
+  background: #c75146;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(199, 81, 70, 0.3);
@@ -141,12 +141,12 @@
 
 /* Add Button - Blue icon, flips on hover */
 .admin-icon-btn.add-btn {
-  color: #76A4B5;
-  border: 1px solid #76A4B5;
+  color: #76a4b5;
+  border: 1px solid #76a4b5;
 }
 
 .admin-icon-btn.add-btn:hover {
-  background: #76A4B5;
+  background: #76a4b5;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(118, 164, 181, 0.3);
@@ -156,27 +156,31 @@
   transform: translateY(0);
 }
 
-.size-headers {
+.size-header {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.9rem;
+  color: #2d3319;
+  font-weight: 500;
   display: flex;
-  align-items: center;
-  min-width: 200px;
-  justify-content: flex-end;
-  gap: 2rem;
-  margin-left: auto;
-  flex-shrink: 0;
+  gap: 0;
+}
+
+.size-header-col {
+  width: 90px;
+  text-align: right;
 }
 
 .size-header {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
-  color: #2D3319;
+  color: #2d3319;
   font-weight: 400;
   text-align: center;
   min-width: 80px;
 }
 
 .menu-items {
-  border-bottom: 2px solid #2D3319;
+  border-bottom: 2px solid #2d3319;
 }
 
 .menu-item {
@@ -197,7 +201,7 @@
   height: 32px;
   margin-right: 12px;
   cursor: grab;
-  color: #6B7E3F;
+  color: #6b7e3f;
   opacity: 0;
   transition: opacity 0.2s ease;
   flex-shrink: 0;
@@ -229,7 +233,7 @@
 
 /* Drag over state */
 .menu-item.drag-over {
-  border-top: 3px solid #6B7E3F;
+  border-top: 3px solid #6b7e3f;
 }
 
 /* Update item-content to account for drag handle */
@@ -262,7 +266,7 @@
 .unavailable-badge {
   margin-left: 0.5rem;
   font-size: 0.85rem;
-  color: #C75146;
+  color: #c75146;
   font-weight: 500;
   font-style: italic;
 }
@@ -271,7 +275,7 @@
 .empty-category {
   padding: 2rem;
   text-align: center;
-  color: #6B7E3F;
+  color: #6b7e3f;
   font-style: italic;
 }
 
@@ -288,9 +292,9 @@
 }
 
 .item-name {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
-  color: #2D3319;
+  color: #2d3319;
   margin: 0;
   font-weight: 400;
   line-height: 1.3;
@@ -298,12 +302,12 @@
 
 .top-seller-badge {
   background: none;
-  color: #2D3319;
+  color: #2d3319;
   padding: 0;
   border-radius: 0;
   font-size: 1rem;
   font-weight: 600;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   white-space: nowrap;
 }
 
@@ -315,47 +319,46 @@
 }
 
 .price {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
-  color: #2D3319;
+  color: #2d3319;
   font-weight: 400;
   text-align: right;
 }
 
 .single-price {
-  min-width: auto;
-  text-align: right;
+  width: 100px;
+  text-align: center;
+  display: inline-block;
 }
 
 .pies-pricing {
   display: flex;
-  gap: 2rem;
   align-items: center;
-  min-width: 200px;
   justify-content: flex-end;
 }
 
 .price-column {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
-  color: #2D3319;
+  color: #2d3319;
   font-weight: 400;
-  text-align: center;
-  min-width: 80px;
+  text-align: right;
+  width: 90px;
 }
 
 .menu-note {
-  background: #F5F5DC;
+  background: #f5f5dc;
   padding: 1.5rem;
   border-radius: 6px;
-  border-left: 3px solid #6B7E3F;
+  border-left: 3px solid #6b7e3f;
   margin-top: 2rem;
 }
 
 .menu-note p {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 0.9rem;
-  color: #2D3319;
+  color: #2d3319;
   line-height: 1.5;
   margin: 0;
   font-style: italic;
@@ -377,12 +380,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, #6B7E3F 0%, #55692F 100%);
+  background: linear-gradient(135deg, #6b7e3f 0%, #55692f 100%);
   color: white;
   border: none;
   padding: 0.875rem 2rem;
   border-radius: 12px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
@@ -397,7 +400,7 @@
 }
 
 .add-category-btn:hover {
-  background: linear-gradient(135deg, #55692F 0%, #4A5528 100%);
+  background: linear-gradient(135deg, #55692f 0%, #4a5528 100%);
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(107, 126, 63, 0.35);
 }
@@ -439,7 +442,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, #F5F5DC 0%, #FAFAED 100%);
+  background: linear-gradient(135deg, #f5f5dc 0%, #fafaed 100%);
   border: 3px solid rgba(107, 126, 63, 0.8);
   padding: 2.5rem;
   width: 500px;
@@ -451,8 +454,8 @@
   box-shadow:
     0 10px 40px rgba(45, 51, 25, 0.25),
     0 0 0 1px rgba(107, 126, 63, 0.1) inset;
-  font-family: 'Cormorant Garamond', serif;
-  color: #2D3319;
+  font-family: "Cormorant Garamond", serif;
+  color: #2d3319;
   animation: slideUp 0.3s ease-out;
 }
 
@@ -478,7 +481,7 @@
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  color: #2D3319;
+  color: #2d3319;
   text-align: center;
   letter-spacing: 0.5px;
 }
@@ -487,13 +490,13 @@
 .popup-subtitle {
   text-align: center;
   font-size: 1rem;
-  color: #6B7E3F;
+  color: #6b7e3f;
   margin-bottom: 1.5rem;
   font-style: italic;
 }
 
 .popup-subtitle.warning {
-  color: #C75146;
+  color: #c75146;
   font-weight: 600;
   font-style: normal;
 }
@@ -508,7 +511,7 @@
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
   font-weight: 500;
-  color: #2D3319;
+  color: #2d3319;
 }
 
 /* Form row for side-by-side inputs */
@@ -526,7 +529,7 @@
   border-radius: 8px;
   padding: 0.75rem 1rem;
   font-size: 1.1rem;
-  color: #2D3319;
+  color: #2d3319;
   font-weight: 500;
 }
 
@@ -538,9 +541,9 @@
   padding: 0.75rem 1rem;
   border: 2px solid rgba(107, 126, 63, 0.3);
   border-radius: 8px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.1rem;
-  color: #2D3319;
+  color: #2d3319;
   background: white;
   transition: all 0.2s ease;
 }
@@ -548,18 +551,18 @@
 .edit-menu-popup input:focus,
 .edit-menu-popup select:focus {
   outline: none;
-  border-color: #6B7E3F;
+  border-color: #6b7e3f;
   box-shadow: 0 0 0 3px rgba(107, 126, 63, 0.1);
 }
 
 .edit-menu-popup input:disabled {
-  background: #F5F5F5;
+  background: #f5f5f5;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .edit-menu-popup input::placeholder {
-  color: #A8B88A;
+  color: #a8b88a;
   font-style: italic;
 }
 
@@ -574,14 +577,14 @@
   gap: 0.75rem;
   cursor: pointer;
   font-size: 1.1rem;
-  color: #2D3319;
+  color: #2d3319;
 }
 
 .checkbox-label input[type="checkbox"] {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #6B7E3F;
+  accent-color: #6b7e3f;
 }
 
 .checkbox-label span {
@@ -609,20 +612,20 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1rem;
-  color: #2D3319;
+  color: #2d3319;
   width: fit-content;
 }
 
 .file-input-label svg {
   width: 20px;
   height: 20px;
-  color: #6B7E3F;
+  color: #6b7e3f;
 }
 
 .file-input-label:hover {
-  border-color: #6B7E3F;
+  border-color: #6b7e3f;
   background: rgba(107, 126, 63, 0.05);
 }
 
@@ -642,7 +645,7 @@
 
 .image-note {
   font-size: 0.9rem;
-  color: #76A4B5;
+  color: #76a4b5;
   font-style: italic;
   margin: 0;
 }
@@ -653,11 +656,11 @@
   font-size: 1.1rem;
   line-height: 1.6;
   margin: 1.5rem 0;
-  color: #2D3319;
+  color: #2d3319;
 }
 
 .confirmation-text strong {
-  color: #6B7E3F;
+  color: #6b7e3f;
   font-weight: 600;
 }
 
@@ -665,7 +668,7 @@
   display: block;
   margin-top: 0.5rem;
   font-size: 1rem;
-  color: #C75146;
+  color: #c75146;
   font-weight: 500;
 }
 
@@ -682,7 +685,7 @@
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 10px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
@@ -692,13 +695,13 @@
 
 /* Save button */
 .save-btn {
-  background: linear-gradient(135deg, #6B7E3F 0%, #55692F 100%);
+  background: linear-gradient(135deg, #6b7e3f 0%, #55692f 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(107, 126, 63, 0.3);
 }
 
 .save-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #55692F 0%, #4A5528 100%);
+  background: linear-gradient(135deg, #55692f 0%, #4a5528 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(107, 126, 63, 0.4);
 }
@@ -708,20 +711,20 @@
 }
 
 .save-btn:disabled {
-  background: #A8B88A;
+  background: #a8b88a;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 /* Delete button */
 .delete-button {
-  background: linear-gradient(135deg, #C75146 0%, #B14139 100%);
+  background: linear-gradient(135deg, #c75146 0%, #b14139 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(199, 81, 70, 0.3);
 }
 
 .delete-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #B14139 0%, #9A352D 100%);
+  background: linear-gradient(135deg, #b14139 0%, #9a352d 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(199, 81, 70, 0.4);
 }
@@ -731,7 +734,7 @@
 }
 
 .delete-button:disabled {
-  background: #D9A0A0;
+  background: #d9a0a0;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -739,15 +742,15 @@
 /* Cancel button */
 .cancel-btn {
   background: white;
-  color: #6B7E3F;
-  border: 2px solid #6B7E3F !important;
+  color: #6b7e3f;
+  border: 2px solid #6b7e3f !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .cancel-btn:hover:not(:disabled) {
-  background: #F5F5DC;
-  border-color: #4A5528 !important;
-  color: #4A5528;
+  background: #f5f5dc;
+  border-color: #4a5528 !important;
+  color: #4a5528;
   transform: translateY(-2px);
 }
 
@@ -762,7 +765,6 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-
   .category-header,
   .category-header-row {
     flex-direction: column;
@@ -777,8 +779,8 @@
   }
 
   .size-headers {
-    align-self: flex-end;
-    margin-left: 0;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .add-category-section {
@@ -791,7 +793,6 @@
 }
 
 @media (max-width: 600px) {
-
   .edit-menu-popup,
   .add-dish-popup {
     width: 95%;
@@ -821,7 +822,6 @@
   }
 }
 
-
 /* Admin Styles */
 .menu-item.clickable {
   cursor: pointer;
@@ -848,7 +848,7 @@
   opacity: 0;
   transition: opacity 0.2s ease;
   font-size: 0.9rem;
-  color: #6B7E3F;
+  color: #6b7e3f;
 }
 
 .menu-item.clickable:hover .item-name::after {
