@@ -95,114 +95,6 @@ export const ALL_TIME_SLOTS: string[] = (() => {
   return slots;
 })();
 
-// Maximum deliveries allowed per calendar week (Sun–Sat).
-const MAX_DELIVERIES_PER_WEEK = 3;
-
-/**
- * Return the ISO "YYYY-WW" week identifier for a given date,
- * using Sun–Sat weeks keyed by the Sunday of that week.
- */
-function weekKey(date: Date): string {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const day = d.getDay(); // 0 = Sunday
-  d.setDate(d.getDate() - day); // rewind to Sunday
-  return dateKey(d); // "YYYY-MM-DD" of that Sunday
-}
-
-/**
- * Count how many *active* (approved) orders fall in the same Sun–Sat week
- * as the given date. Returns the count.
- */
-async function getWeeklyApprovedDeliveryCount(date: Date): Promise<number> {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const dayOfWeek = d.getDay();
-
-  const sunday = new Date(d);
-  sunday.setDate(d.getDate() - dayOfWeek);
-  sunday.setHours(0, 0, 0, 0);
-
-  const saturday = new Date(sunday);
-  saturday.setDate(sunday.getDate() + 6);
-  saturday.setHours(23, 59, 59, 999);
-
-  const q = query(
-    collection(db, "orders"),
-    where("status", "==", "active"),
-    where("deliveryDate", ">=", Timestamp.fromDate(sunday)),
-    where("deliveryDate", "<=", Timestamp.fromDate(saturday)),
-  );
-
-  const snap = await getDocs(q);
-  return snap.size;
-}
-
-/**
- * If the week containing `date` now has MAX_DELIVERIES_PER_WEEK active orders,
- * block every day in that week that isn't already blocked.
- */
-async function autoBlockWeekIfFull(date: Date): Promise<void> {
-  const count = await getWeeklyApprovedDeliveryCount(date);
-  if (count < MAX_DELIVERIES_PER_WEEK) return;
-
-  // Block every remaining day in this Sun–Sat week.
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const sunday = new Date(d);
-  sunday.setDate(d.getDate() - d.getDay());
-
-  const snap = await getDoc(BLOCKED_DAYS_DOC);
-  const existing: string[] = snap.exists() ? (snap.data().days ?? []) : [];
-  const toAdd: string[] = [];
-
-  for (let i = 0; i < 7; i++) {
-    const day = new Date(sunday);
-    day.setDate(sunday.getDate() + i);
-    const key = dateKey(day);
-    if (!existing.includes(key)) toAdd.push(key);
-  }
-
-  if (toAdd.length > 0) {
-    await setDoc(BLOCKED_DAYS_DOC, { days: [...existing, ...toAdd] });
-  }
-}
-
-/**
- * Remove the blocked days that were auto-added for a week when an order in
- * that week is declined — but only if the week drops below the cap again.
- * We must NOT unblock days that the admin manually blocked.
- *
- * Strategy: after removing the approved order, recount. If count < cap,
- * remove the week's days from the blocked list (trusting that the admin
- * manages their own manual blocks separately — if they want a day blocked
- * they can re-block it).
- */
-async function autoUnblockWeekIfBelowCap(date: Date): Promise<void> {
-  // Count *after* the decline has already been written, so this is the new count.
-  const count = await getWeeklyApprovedDeliveryCount(date);
-  if (count >= MAX_DELIVERIES_PER_WEEK) return;
-
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  const sunday = new Date(d);
-  sunday.setDate(d.getDate() - d.getDay());
-
-  const weekDayKeys = new Set(
-    Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(sunday);
-      day.setDate(sunday.getDate() + i);
-      return dateKey(day);
-    }),
-  );
-
-  const snap = await getDoc(BLOCKED_DAYS_DOC);
-  if (!snap.exists()) return;
-  const existing: string[] = snap.data().days ?? [];
-  const filtered = existing.filter((k) => !weekDayKeys.has(k));
-  await setDoc(BLOCKED_DAYS_DOC, { days: filtered });
-}
-
 // ─── Place Order ─────────────────────────────────────────────────────────────
 
 export interface PlaceOrderPayload {
@@ -253,6 +145,11 @@ export async function placeOrder(payload: PlaceOrderPayload): Promise<string> {
     };
 
     const docRef = await addDoc(collection(db, "orders"), orderData);
+
+    // Immediately block the selected time slot and its ±30-min buffer
+    // so concurrent customers cannot book the same window.
+    await saveBookedSlots(payload.deliveryDate, payload.deliveryTime);
+
     return docRef.id;
   } catch (error) {
     console.error("Error placing order:", error);
@@ -298,47 +195,36 @@ export function getNewOrderCount(
 // ─── Check Booked / Reserved Times ───────────────────────────────────────────
 
 /**
- * Returns:
- *   booked   — the exact approved delivery times on the given date
- *              (the caller should expand these into buffer slots for display)
- *   reserved — time slots currently held by other users' 10-minute reservations
+ * Returns booked — the exact delivery times on the given date (pending + active),
+ * expanded to include their ±30-min buffer slots.
  */
 export async function getBookedTimesForDate(
   date: Date,
-  currentUserId?: string,
-): Promise<{ booked: string[]; reserved: string[] }> {
-  const key = dateKey(date);
+): Promise<{ booked: string[] }> {
   try {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    // Fetch both active (approved) and pending orders on this day.
-    // Pending orders must also block slots to prevent double-booking
-    // while awaiting admin review.
-    const [activeSnap, pendingSnap] = await Promise.all([
-      getDocs(
-        query(
-          collection(db, "orders"),
-          where("status", "==", "active"),
-          where("deliveryDate", ">=", Timestamp.fromDate(startOfDay)),
-          where("deliveryDate", "<=", Timestamp.fromDate(endOfDay)),
-        ),
+    // Query by date range only (no composite index required), then filter
+    // by status in application code to avoid missing Firestore indexes.
+    const dateSnap = await getDocs(
+      query(
+        collection(db, "orders"),
+        where("deliveryDate", ">=", Timestamp.fromDate(startOfDay)),
+        where("deliveryDate", "<=", Timestamp.fromDate(endOfDay)),
       ),
-      getDocs(
-        query(
-          collection(db, "orders"),
-          where("status", "==", "pending"),
-          where("deliveryDate", ">=", Timestamp.fromDate(startOfDay)),
-          where("deliveryDate", "<=", Timestamp.fromDate(endOfDay)),
-        ),
-      ),
-    ]);
-    const rawBooked: string[] = [...activeSnap.docs, ...pendingSnap.docs]
+    );
+    const rawBooked: string[] = dateSnap.docs
+      .filter((d) => {
+        const status = d.data().status;
+        return status === "active" || status === "pending";
+      })
       .map((d) => d.data().deliveryTime as string)
       .filter(Boolean);
 
+    // Expand each booked time to include its ±30-min buffer slots.
     // Expand each booked time to include its ±30-min buffer slots.
     const bookedWithBuffer = new Set<string>();
     for (const t of rawBooked) {
@@ -347,53 +233,10 @@ export async function getBookedTimesForDate(
       }
     }
 
-    // Fetch active reservations from other users (not expired).
-    const resQ = query(
-      collection(db, "timeReservations"),
-      where("dateKey", "==", key),
-    );
-    const resSnap = await getDocs(resQ);
-    const reserved: string[] = [];
-    resSnap.docs.forEach((d) => {
-      const data = d.data();
-      if (data.userId === currentUserId) return; // ignore own reservation
-      const expiresAt: Date = data.expiresAt?.toDate?.() ?? new Date(0);
-      if (expiresAt > new Date()) reserved.push(data.time as string);
-    });
-
-    return { booked: Array.from(bookedWithBuffer), reserved };
+    return { booked: Array.from(bookedWithBuffer) };
   } catch (error) {
     console.error("Error fetching booked times:", error);
-    return { booked: [], reserved: [] };
-  }
-}
-
-// ─── Time Slot Reservations ───────────────────────────────────────────────────
-
-/**
- * Reserve a time slot for 10 minutes while the customer completes checkout.
- */
-export async function reserveTimeSlot(
-  date: Date,
-  time: string,
-  userId: string,
-): Promise<string> {
-  // 10-minute reservation window (was 15 — corrected per spec).
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-  const docRef = await addDoc(collection(db, "timeReservations"), {
-    dateKey: dateKey(date),
-    time,
-    userId,
-    expiresAt: Timestamp.fromDate(expiresAt),
-  });
-  return docRef.id;
-}
-
-export async function releaseReservation(reservationId: string): Promise<void> {
-  try {
-    await deleteDoc(doc(db, "timeReservations", reservationId));
-  } catch {
-    // silent — may already be gone
+    return { booked: [] };
   }
 }
 
@@ -435,7 +278,8 @@ export async function unblockDay(date: Date): Promise<void> {
   await setDoc(BLOCKED_DAYS_DOC, { days: existing.filter((d) => d !== key) });
 }
 
-// ─── Admin: Blocked Time Slots (per-day) ─────────────────────────────────────
+// ─── Admin: Blocked Time Slots (per-day) ─────
+// ────────────────────────────────
 // Stored in Firestore as adminSettings/bookedSlots → { [dateKey]: string[] }
 // Each entry is the set of slots blocked due to approved orders (incl. buffers).
 
@@ -448,10 +292,10 @@ async function getBookedSlotsMap(): Promise<Record<string, string[]>> {
 }
 
 /**
- * Persist the buffer slots for an approved order so that customers
- * immediately see them as blocked when they load the checkout calendar.
+ * Persist the buffer slots for a placed order so that the time slot
+ * and its ±30-min buffer are immediately blocked for other customers.
  */
-async function saveBookedSlotsForApproval(
+async function saveBookedSlots(
   deliveryDate: Date,
   deliveryTime: string,
 ): Promise<void> {
@@ -506,12 +350,6 @@ export async function approveOrder(orderId: string): Promise<void> {
       isNewForAdmin: false,
       updatedAt: Timestamp.now(),
     });
-
-    // Block the delivery slot and its ±30-min buffer.
-    await saveBookedSlotsForApproval(deliveryDate, deliveryTime);
-
-    // Auto-block the week if the cap is now reached.
-    await autoBlockWeekIfFull(deliveryDate);
   } catch (error) {
     console.error("Error approving order:", error);
     throw new Error("Failed to approve order.");
@@ -533,8 +371,6 @@ export async function declineOrder(
     if (!orderSnap.exists()) throw new Error("Order not found.");
     const data = orderSnap.data();
 
-    // Only undo slot-blocking if the order was previously active (approved).
-    const wasActive = data.status === "active";
     const deliveryDate: Date =
       data.deliveryDate?.toDate?.() ?? new Date(data.deliveryDate);
     const deliveryTime: string = data.deliveryTime;
@@ -546,12 +382,8 @@ export async function declineOrder(
       updatedAt: Timestamp.now(),
     });
 
-    if (wasActive) {
-      // Free up the slots.
-      await removeBookedSlotsForDecline(deliveryDate, deliveryTime);
-      // Unblock the week if it's now below the cap.
-      await autoUnblockWeekIfBelowCap(deliveryDate);
-    }
+    // Free up the slots — blocked at placement time, so always unblock on decline.
+    await removeBookedSlotsForDecline(deliveryDate, deliveryTime);
   } catch (error) {
     console.error("Error declining order:", error);
     throw new Error("Failed to decline order.");

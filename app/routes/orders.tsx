@@ -108,6 +108,7 @@ interface OrderRowProps {
   onApprove: (order: Order) => void;
   onDecline: (order: Order) => void;
   onDeliver: (order: Order) => void;
+  onScrap: (order: Order) => void;
   showDeliverButton: boolean;
   showApproveDecline: boolean;
 }
@@ -117,6 +118,7 @@ function OrderRow({
   onApprove,
   onDecline,
   onDeliver,
+  onScrap,
   showDeliverButton,
   showApproveDecline,
 }: OrderRowProps) {
@@ -177,28 +179,52 @@ function OrderRow({
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </span>
 
-          {/* Deliver button — visible inline on active rows */}
+          {/* Deliver + Scrap buttons — visible inline on active rows */}
           {showDeliverButton && (
-            <button
-              className="deliver-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeliver(order);
-              }}
-              title="Mark as delivered"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
+            <>
+              <button
+                className="deliver-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeliver(order);
+                }}
+                title="Mark as delivered"
               >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </button>
+              <button
+                className="scrap-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onScrap(order);
+                }}
+                title="Scrap order"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
+              </button>
+            </>
           )}
 
           <button
@@ -282,19 +308,24 @@ function OrderRow({
           {/* Approve / Decline buttons for new (pending) orders */}
           {showApproveDecline && (
             <div className="order-actions">
-              <button className="approve-btn" onClick={() => onApprove(order)}>
-                <svg
-                  viewBox="0 0 24 24"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+              {!isOrderExpired(order) && (
+                <button
+                  className="approve-btn"
+                  onClick={() => onApprove(order)}
                 >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Approve Order
-              </button>
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Approve Order
+                </button>
+              )}
               <button className="decline-btn" onClick={() => onDecline(order)}>
                 <svg
                   viewBox="0 0 24 24"
@@ -327,6 +358,7 @@ interface OrderSectionProps {
   onApprove: (order: Order) => void;
   onDecline: (order: Order) => void;
   onDeliver: (order: Order) => void;
+  onScrap: (order: Order) => void;
   showDeliverButton?: boolean;
   showApproveDecline?: boolean;
   accentColor?: string;
@@ -344,6 +376,7 @@ function OrderSection({
   onApprove,
   onDecline,
   onDeliver,
+  onScrap,
   showDeliverButton = false,
   showApproveDecline = false,
   accentColor = "#6b7e3f",
@@ -378,6 +411,7 @@ function OrderSection({
                 onApprove={onApprove}
                 onDecline={onDecline}
                 onDeliver={onDeliver}
+                onScrap={onScrap}
                 showDeliverButton={showDeliverButton}
                 showApproveDecline={showApproveDecline}
               />
@@ -423,7 +457,7 @@ export default function Orders() {
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
-    type: "approve" | "decline" | "deliver";
+    type: "approve" | "decline" | "deliver" | "scrap";
     order: Order;
   } | null>(null);
   const [declineNote, setDeclineNote] = useState("");
@@ -531,6 +565,9 @@ export default function Orders() {
     setConfirmState({ type: "deliver", order });
   };
 
+  const handleScrap = (order: Order) => {
+    setConfirmState({ type: "scrap", order });
+  };
   const handleConfirm = async () => {
     if (!confirmState) return;
     setActionLoading(true);
@@ -557,6 +594,8 @@ export default function Orders() {
         }
       } else if (type === "deliver") {
         await markOrderDelivered(order.id);
+      } else if (type === "scrap") {
+        await declineOrder(order.id, declineNote.trim() || undefined);
       }
     } catch (error) {
       console.error("Action failed:", error);
@@ -612,6 +651,7 @@ export default function Orders() {
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
+                onScrap={handleScrap}
                 showApproveDecline={true}
                 accentColor="#d9a84e"
                 hidden={newOrders.length === 0}
@@ -629,6 +669,7 @@ export default function Orders() {
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
+                onScrap={handleScrap}
                 showDeliverButton={true}
                 accentColor="#6b7e3f"
                 page={clampedActivePage}
@@ -645,6 +686,7 @@ export default function Orders() {
                 onApprove={handleApprove}
                 onDecline={handleDecline}
                 onDeliver={handleDeliver}
+                onScrap={handleScrap}
                 accentColor="#8a8a7a"
                 page={clampedInactivePage}
                 pageSize={PAGE_SIZE}
@@ -697,6 +739,30 @@ export default function Orders() {
           confirmLabel={actionLoading ? "Saving…" : "Yes, Mark Delivered"}
           onConfirm={handleConfirm}
           onCancel={handleCancelConfirm}
+        />
+      )}
+
+      {confirmState?.type === "scrap" && (
+        <ConfirmDialog
+          message={`Scrap order ${confirmState.order.orderCode} for ${confirmState.order.customerName}? This will cancel the order and free up the time slot.`}
+          confirmLabel={actionLoading ? "Scrapping…" : "Yes, Scrap Order"}
+          confirmDanger={true}
+          onConfirm={handleConfirm}
+          onCancel={handleCancelConfirm}
+          extraContent={
+            <div className="decline-note-wrapper">
+              <label className="decline-note-label">
+                Reason / note for customer (optional):
+              </label>
+              <textarea
+                className="decline-note-input"
+                value={declineNote}
+                onChange={(e) => setDeclineNote(e.target.value)}
+                placeholder="e.g. Unable to fulfill this order, sorry for the inconvenience."
+                rows={3}
+              />
+            </div>
+          }
         />
       )}
     </div>

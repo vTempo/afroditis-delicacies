@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Header from "../components/utils/header";
 import Footer from "../components/utils/footer";
@@ -9,8 +9,6 @@ import { useCart } from "../context/cartContext/cartContext";
 import {
   placeOrder,
   getBookedTimesForDate,
-  reserveTimeSlot,
-  releaseReservation,
   subscribeToBlockedDays,
 } from "../services/orderService";
 import { emailService } from "../services/emailService";
@@ -255,11 +253,6 @@ export default function Checkout() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [blockedDays, setBlockedDays] = useState<string[]>([]);
-  const [reservedTimes, setReservedTimes] = useState<string[]>([]);
-  const reservationIdRef = useRef<string | null>(null);
-  const reservationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [timesLoading, setTimesLoading] = useState(false);
 
@@ -327,47 +320,31 @@ export default function Checkout() {
   useEffect(() => {
     if (!selectedDate) {
       setBookedTimes([]);
-      setReservedTimes([]);
       return;
     }
     let cancelled = false;
-    setTimesLoading(true);
-    getBookedTimesForDate(selectedDate, user?.uid).then(
-      ({ booked, reserved }) => {
+
+    const refresh = () => {
+      getBookedTimesForDate(selectedDate).then(({ booked }) => {
         if (!cancelled) {
           setBookedTimes(booked);
-          setReservedTimes(reserved);
           setTimesLoading(false);
         }
-      },
-    );
+      });
+    };
+
+    setTimesLoading(true);
+    refresh();
+
+    // Poll every 15 seconds so newly placed orders by other customers
+    // are reflected without requiring a page reload.
+    const interval = setInterval(refresh, 15000);
+
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
-  }, [selectedDate, user?.uid]);
-
-  useEffect(() => {
-    return () => {
-      if (reservationIdRef.current)
-        releaseReservation(reservationIdRef.current);
-      if (reservationTimeoutRef.current)
-        clearTimeout(reservationTimeoutRef.current);
-    };
-  }, []);
-
-  // Release reservation if cart is emptied from anywhere (e.g. cart popup)
-  useEffect(() => {
-    if (cartItems.length === 0 && reservationIdRef.current) {
-      releaseReservation(reservationIdRef.current);
-      reservationIdRef.current = null;
-      if (reservationTimeoutRef.current) {
-        clearTimeout(reservationTimeoutRef.current);
-        reservationTimeoutRef.current = null;
-      }
-      setSelectedTime(null);
-      setSelectedDate(null);
-    }
-  }, [cartItems.length]);
+  }, [selectedDate]);
 
   // ── Countdown after success ──
   useEffect(() => {
@@ -479,48 +456,15 @@ export default function Checkout() {
     );
   };
 
-  const handleDayClick = async (day: Date) => {
+  const handleDayClick = (day: Date) => {
     if (!isDayAvailable(day)) return;
-    if (reservationIdRef.current) {
-      await releaseReservation(reservationIdRef.current);
-      reservationIdRef.current = null;
-    }
-    if (reservationTimeoutRef.current)
-      clearTimeout(reservationTimeoutRef.current);
     setSelectedDate(day);
     setSelectedTime(null);
   };
 
-  const handleTimeSelect = async (slot: string) => {
-    if (!selectedDate || !user) return;
-    if (reservationIdRef.current) {
-      await releaseReservation(reservationIdRef.current);
-      reservationIdRef.current = null;
-    }
-    if (reservationTimeoutRef.current)
-      clearTimeout(reservationTimeoutRef.current);
+  const handleTimeSelect = (slot: string) => {
+    if (!selectedDate) return;
     setSelectedTime(slot);
-    try {
-      const resId = await reserveTimeSlot(selectedDate, slot, user.uid);
-      reservationIdRef.current = resId;
-      reservationTimeoutRef.current = setTimeout(
-        async () => {
-          reservationIdRef.current = null;
-          setSelectedTime(null);
-          if (selectedDate) {
-            const { booked, reserved } = await getBookedTimesForDate(
-              selectedDate,
-              user?.uid,
-            );
-            setBookedTimes(booked);
-            setReservedTimes(reserved);
-          }
-        },
-        10 * 60 * 1000, // 10-minute reservation window
-      );
-    } catch (err) {
-      console.error("Failed to reserve time slot:", err);
-    }
   };
 
   // ── Submit ──
@@ -565,7 +509,7 @@ export default function Checkout() {
       return;
     }
 
-    const { booked } = await getBookedTimesForDate(selectedDate, user?.uid);
+    const { booked } = await getBookedTimesForDate(selectedDate);
     if (isWithinBuffer(selectedTime, booked)) {
       setSubmitError(
         "This time slot was just taken. Please choose a different time.",
@@ -619,10 +563,6 @@ export default function Checkout() {
         await emailService.sendNewOrderNotificationToAdmin(order);
       }
 
-      if (reservationIdRef.current) {
-        await releaseReservation(reservationIdRef.current);
-        reservationIdRef.current = null;
-      }
       // Clear cart
       await clearCart();
 
@@ -887,9 +827,7 @@ export default function Checkout() {
                               : 0;
                             const tooEarly = minMins > 0 && slotMins <= minMins;
                             const blocked =
-                              tooEarly ||
-                              bookedTimes.includes(slot) ||
-                              reservedTimes.includes(slot);
+                              tooEarly || bookedTimes.includes(slot);
                             const isSelected =
                               !blocked && selectedTime === slot;
                             return (
@@ -906,12 +844,6 @@ export default function Checkout() {
                             );
                           })}
                         </div>
-                        {selectedTime && (
-                          <p className="reservation-notice">
-                            ⏱ Your slot is reserved for 10 minutes. Please
-                            complete your order before it expires.
-                          </p>
-                        )}
                       </>
                     )}
                   </div>
