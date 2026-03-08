@@ -252,16 +252,10 @@ export default function Home() {
               {/* Video Embed Container */}
               <div className="video-embed-container">
                 <div className="video-aspect-ratio">
-                  {/* Replace YOUR_VIDEO_ID with your actual YouTube video ID */}
-                  <iframe
-                    className="video-iframe"
-                    src="./../../public/videos/feature_vid.mp4"
-                    title="Afroditi's Delicacies"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    loading="lazy"
-                  ></iframe>
+
+                  <video className="video-iframe" controls>
+                    <source src="/videos/feature_vid.mp4" type="video/mp4" />
+                  </video>
                 </div>
               </div>
 

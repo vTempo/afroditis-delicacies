@@ -705,8 +705,8 @@ export default function Menu() {
                             item.secondPrice &&
                             item.secondPrice > 0 ? (
                               <span className="price">
-                                ${item.price.toFixed(2)} / $
-                                {item.secondPrice.toFixed(2)}
+                                ${item.secondPrice.toFixed(2)} / $
+                                {item.price.toFixed(2)}
                               </span>
                             ) : (
                               <span className="price single-price">
