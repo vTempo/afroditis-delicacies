@@ -863,7 +863,7 @@ export default function Checkout() {
                     className={`payment-option ${paymentMethod === "paypal" ? "selected" : ""}`}
                     onClick={() => setPaymentMethod("paypal")}
                   >
-                    <span className="payment-option-icon">💳</span>
+                    <span className="payment-option-icon"><img src="./../../public/img/payment/paypal.png" alt="PayPal" /></span>
                     <span>PayPal</span>
                     {paymentMethod === "paypal" && (
                       <a
@@ -882,7 +882,7 @@ export default function Checkout() {
                     className={`payment-option ${paymentMethod === "venmo" ? "selected" : ""}`}
                     onClick={() => setPaymentMethod("venmo")}
                   >
-                    <span className="payment-option-icon">💜</span>
+                    <span className="payment-option-icon"><img src="./../../public/img/payment/venmo.png" alt="Venmo" /></span>
                     <span>Venmo</span>
                     {paymentMethod === "venmo" && (
                       <a
@@ -901,7 +901,7 @@ export default function Checkout() {
                     className={`payment-option ${paymentMethod === "pay_on_delivery" ? "selected" : ""}`}
                     onClick={() => setPaymentMethod("pay_on_delivery")}
                   >
-                    <span className="payment-option-icon">🤝</span>
+                    <span className="payment-option-icon"><img src="./../../public/img/payment/money.png" alt="Cash on Delivery" /></span>
                     <span>Cash or Check on Delivery</span>
                   </button>
                 </div>

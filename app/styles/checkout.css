@@ -360,6 +360,11 @@
   flex-shrink: 0;
 }
 
+.payment-option-icon img {
+  width: 2rem;
+  height: 2rem;
+}
+
 .payment-link {
   margin-left: auto;
   color: #6b7e3f;
