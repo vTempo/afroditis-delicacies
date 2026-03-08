@@ -49,7 +49,8 @@ class AddressService {
         `country=US&` +
         `types=address&` +
         `limit=5&` +
-        `autocomplete=true`;
+        `autocomplete=true&` +
+        `proximity=-122.2054,47.7623`; // ← add this line (Bothell, WA)
 
       const response = await fetch(url);
 

@@ -84,12 +84,18 @@ async function geocodeAddress(
   address: string,
 ): Promise<{ lat: number; lng: number } | null> {
   try {
-    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodeURIComponent(address)}&access_token=${MAPBOX_TOKEN}&country=US&limit=1`;
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+      address,
+    )}.json?access_token=${MAPBOX_TOKEN}&country=US&limit=1`;
     const res = await fetch(url);
+    if (!res.ok) {
+      console.error("Geocode error:", res.status);
+      return null;
+    }
     const data = await res.json();
     if (data.features && data.features.length > 0) {
-      const coords = data.features[0].geometry.coordinates;
-      return { lat: coords[1], lng: coords[0] };
+      const [lng, lat] = data.features[0].geometry.coordinates;
+      return { lat, lng };
     }
     return null;
   } catch {
