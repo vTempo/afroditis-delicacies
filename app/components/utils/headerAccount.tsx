@@ -1091,16 +1091,6 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                                     : expandedOrder.paymentMethod}
                             </span>
                           </div>
-                          <div className="order-detail-row">
-                            <span className="order-detail-label">Status</span>
-                            <span
-                              className={`order-detail-payment-status ${expandedOrder.paymentStatus === "paid" ? "payment-status-paid" : "payment-status-pending"}`}
-                            >
-                              {expandedOrder.paymentStatus === "paid"
-                                ? "Paid"
-                                : "Due on Delivery"}
-                            </span>
-                          </div>
                         </div>
 
                         <div className="order-detail-total-row">

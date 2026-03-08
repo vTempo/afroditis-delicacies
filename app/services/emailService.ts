@@ -65,33 +65,43 @@ class EmailService {
    */
   async sendOrderConfirmationToCustomer(order: Order): Promise<void> {
     try {
+      const paymentInstructions =
+        order.paymentMethod === "pay_on_delivery"
+          ? "You selected Cash or Check on Delivery — no action needed, we'll collect payment when we arrive!"
+          : order.paymentMethod === "venmo"
+            ? "If you haven't already, please go ahead and send your payment of $" +
+              order.subtotal.toFixed(2) +
+              " via Venmo:\n  👉 https://venmo.com/Afroditi-Kritikou"
+            : "If you haven't already, please go ahead and send your payment of $" +
+              order.subtotal.toFixed(2) +
+              " via PayPal:\n  👉 https://paypal.me/AfroditiSDeli";
+
       const body = `
 Dear ${order.customerName},
 
-Thank you for your order at Afroditi's Delicacies!
-
-Your order has been received and is currently pending review. We will send you an update once it has been approved.
+Great news! Your order has been approved and is now being prepared.
 
 ─────────────────────────────────────────
-ORDER DETAILS
+ORDER CONFIRMATION
 ─────────────────────────────────────────
 Order ID:        ${order.orderCode}
-Order Date:      ${new Date(order.orderDate).toLocaleString("en-US")}
 
-Items Ordered:
+Items:
 ${this.formatOrderItems(order)}
 
 Subtotal:        $${order.subtotal.toFixed(2)}
 
-Requested Delivery:  ${this.formatDeliveryDate(order)}
+Delivery:        ${this.formatDeliveryDate(order)}
+Address:         ${order.deliveryAddress.fullAddress}
 
-Delivery Address:
-  ${order.deliveryAddress.fullAddress}
-
-Payment Method:  ${order.paymentMethod === "pay_on_delivery" ? "Pay on Delivery" : order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
+Payment:         ${order.paymentMethod === "pay_on_delivery" ? "Cash or Check on Delivery" : order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1)}
+─────────────────────────────────────────
+PAYMENT
+─────────────────────────────────────────
+${paymentInstructions}
 ─────────────────────────────────────────
 
-We'll be in touch soon!
+We're cooking with love and can't wait for you to enjoy your meal!
 
 Warm regards,
 Afroditi's Delicacies
