@@ -20,6 +20,7 @@ interface OrderLineItem {
   size: string;
   price: number;
   quantity: number;
+  originalQuantity: number; // quantity at modal open; 0 for brand-new items
 }
 
 interface EditOrderModalProps {
@@ -39,6 +40,7 @@ function lineItemsFromOrder(order: Order): OrderLineItem[] {
         size: q.size,
         price: q.price,
         quantity: q.quantity,
+        originalQuantity: q.quantity,
       });
     }
   }
@@ -48,7 +50,12 @@ function lineItemsFromOrder(order: Order): OrderLineItem[] {
 function lineItemsToOrderItems(lines: OrderLineItem[]): OrderItem[] {
   const map = new Map<string, OrderItem>();
   for (const li of lines) {
-    const existing = map.get(li.menuItemId);
+    // Custom items each get a unique key so they never merge with each other
+    const key =
+      li.menuItemId === "custom"
+        ? `custom-${li.dishName}-${li.size}`
+        : li.menuItemId;
+    const existing = map.get(key);
     if (existing) {
       existing.quantities.push({
         size: li.size,
@@ -57,7 +64,7 @@ function lineItemsToOrderItems(lines: OrderLineItem[]): OrderItem[] {
       });
       existing.itemSubtotal += li.price * li.quantity;
     } else {
-      map.set(li.menuItemId, {
+      map.set(key, {
         menuItemId: li.menuItemId,
         dishName: li.dishName,
         category: li.category,
@@ -86,6 +93,18 @@ export default function EditOrderModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Custom item form state
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [customQty, setCustomQty] = useState("1");
+  const [customError, setCustomError] = useState<string | null>(null);
+
+  const discountPercent = order.discountPercent ?? 0;
+  const hasDiscount = discountPercent > 0;
+  const hasUnadjusted = lineItems.some(
+    (li) => li.quantity > li.originalQuantity,
+  );
 
   useEffect(() => {
     getMenuData()
@@ -148,9 +167,48 @@ export default function EditOrderModal({
           size,
           price,
           quantity,
+          originalQuantity: 0,
         },
       ];
     });
+  };
+
+  const handleAddCustomItem = () => {
+    setCustomError(null);
+    const name = customName.trim();
+    const price = parseFloat(customPrice);
+    const qty = parseInt(customQty, 10);
+
+    if (!name) {
+      setCustomError("Item name is required.");
+      return;
+    }
+    if (isNaN(price) || price <= 0) {
+      setCustomError("Enter a valid price greater than 0.");
+      return;
+    }
+    if (isNaN(qty) || qty < 1) {
+      setCustomError("Enter a valid quantity of at least 1.");
+      return;
+    }
+
+    setLineItems((prev) => [
+      ...prev,
+      {
+        menuItemId: "custom",
+        dishName: name,
+        category: "Custom",
+        size: "single",
+        price,
+        quantity: qty,
+        originalQuantity: 0,
+      },
+    ]);
+
+    // Reset form
+    setCustomName("");
+    setCustomPrice("");
+    setCustomQty("1");
   };
 
   const handleRemoveLine = (index: number) =>
@@ -164,6 +222,29 @@ export default function EditOrderModal({
       updated[index] = { ...updated[index], quantity: newQty };
       return updated;
     });
+  };
+
+  const handleApplyDiscount = () => {
+    const multiplier = 1 - discountPercent / 100;
+    setLineItems((prev) =>
+      prev.map((li) => {
+        const delta = li.quantity - li.originalQuantity;
+        if (delta <= 0) return li;
+
+        const discountedDeltaPrice = parseFloat(
+          (li.price * multiplier).toFixed(2),
+        );
+        const totalCost =
+          li.originalQuantity * li.price + delta * discountedDeltaPrice;
+        const blendedPrice = parseFloat((totalCost / li.quantity).toFixed(2));
+
+        return {
+          ...li,
+          price: blendedPrice,
+          originalQuantity: li.quantity,
+        };
+      }),
+    );
   };
 
   const subtotal = lineItems.reduce(
@@ -221,9 +302,9 @@ export default function EditOrderModal({
         </div>
 
         <div className="eom-body">
-          {/* Search */}
+          {/* Menu item search */}
           <div className="eom-search-section">
-            <p className="eom-section-label">Add Items</p>
+            <p className="eom-section-label">Add Menu Item</p>
             <div className="eom-search-wrapper" ref={searchRef}>
               <input
                 className="eom-search-input"
@@ -259,6 +340,46 @@ export default function EditOrderModal({
             </div>
           </div>
 
+          {/* Custom item form */}
+          <div className="eom-custom-section">
+            <p className="eom-section-label">Add Custom Item</p>
+            <div className="eom-custom-form">
+              <input
+                className="eom-custom-input eom-custom-name"
+                type="text"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                placeholder="Item name"
+                maxLength={120}
+              />
+              <input
+                className="eom-custom-input eom-custom-price"
+                type="number"
+                value={customPrice}
+                onChange={(e) => setCustomPrice(e.target.value)}
+                placeholder="Price ($)"
+                min="0.01"
+                step="0.01"
+              />
+              <input
+                className="eom-custom-input eom-custom-qty"
+                type="number"
+                value={customQty}
+                onChange={(e) => setCustomQty(e.target.value)}
+                placeholder="Qty"
+                min="1"
+                step="1"
+              />
+              <button
+                className="eom-custom-add-btn"
+                onClick={handleAddCustomItem}
+              >
+                Add
+              </button>
+            </div>
+            {customError && <p className="eom-custom-error">{customError}</p>}
+          </div>
+
           {/* Line items */}
           <div className="eom-items-section">
             <p className="eom-section-label">Order Items</p>
@@ -276,10 +397,20 @@ export default function EditOrderModal({
                   <span></span>
                 </div>
                 {lineItems.map((li, i) => (
-                  <div key={i} className="eom-line">
-                    <span className="eom-line-name">{li.dishName}</span>
+                  <div
+                    key={i}
+                    className={`eom-line${hasDiscount && li.quantity > li.originalQuantity ? " eom-line-unadjusted" : ""}${li.menuItemId === "custom" ? " eom-line-custom" : ""}`}
+                  >
+                    <span className="eom-line-name">
+                      {li.dishName}
+                      {li.menuItemId === "custom" && (
+                        <span className="eom-custom-badge">Custom</span>
+                      )}
+                    </span>
                     <span className="eom-line-size">
-                      {li.size.charAt(0).toUpperCase() + li.size.slice(1)}
+                      {li.menuItemId === "custom"
+                        ? "—"
+                        : li.size.charAt(0).toUpperCase() + li.size.slice(1)}
                     </span>
                     <div className="eom-line-qty">
                       <button
@@ -315,6 +446,30 @@ export default function EditOrderModal({
               </div>
             )}
           </div>
+
+          {/* Discount adjustment button */}
+          {hasDiscount && (
+            <div className="eom-discount-row">
+              <button
+                className="eom-discount-btn"
+                onClick={handleApplyDiscount}
+                disabled={!hasUnadjusted}
+                title={
+                  hasUnadjusted
+                    ? `Apply ${discountPercent}% discount to new items`
+                    : "No new items to adjust"
+                }
+              >
+                Apply {discountPercent}% discount to new items
+              </button>
+              {hasUnadjusted && (
+                <span className="eom-discount-hint">
+                  New items are at full price — click to apply the order
+                  discount.
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="eom-footer">

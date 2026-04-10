@@ -60,12 +60,26 @@ async function geocodeAddress(
   }
 }
 
-interface OrderLineItem {
+// Regular menu item line
+interface MenuOrderLineItem {
+  type: "menu";
   menuItem: MenuItem;
   size: string;
-  price: number;
+  basePrice: number; // full menu price, never changes
+  price: number; // displayed/saved price = basePrice * discount multiplier
   quantity: number;
 }
+
+// Custom off-menu item line
+interface CustomOrderLineItem {
+  type: "custom";
+  dishName: string;
+  basePrice: number; // what admin typed, never changes
+  price: number; // displayed/saved price = basePrice * discount multiplier
+  quantity: number;
+}
+
+type OrderLineItem = MenuOrderLineItem | CustomOrderLineItem;
 
 interface AdminOrderFormProps {
   onClose: () => void;
@@ -110,10 +124,25 @@ export default function AdminOrderForm({
   // ── Order lines ──
   const [lineItems, setLineItems] = useState<OrderLineItem[]>([]);
 
+  // ── Discount ──
+  const [discountPercent, setDiscountPercent] = useState<string>("");
+
+  // ── Custom item form ──
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [customQty, setCustomQty] = useState("1");
+  const [customError, setCustomError] = useState<string | null>(null);
+
   // ── Submission ──
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // ── Discount multiplier helper ──
+  const getMultiplier = (val: string): number => {
+    const p = parseFloat(val);
+    return !isNaN(p) && p > 0 && p < 100 ? 1 - p / 100 : 1;
+  };
 
   // ── Load menu on mount ──
   useEffect(() => {
@@ -193,8 +222,18 @@ export default function AdminOrderForm({
     } else setCalendarMonth((m) => m + 1);
   };
 
-  const handleDayClick = (day: Date) => {
-    setSelectedDate(day);
+  const handleDayClick = (day: Date) => setSelectedDate(day);
+
+  // ── Discount change — retroactively reprices all existing items from basePrice ──
+  const handleDiscountChange = (val: string) => {
+    setDiscountPercent(val);
+    const multiplier = getMultiplier(val);
+    setLineItems((prev) =>
+      prev.map((li) => ({
+        ...li,
+        price: parseFloat((li.basePrice * multiplier).toFixed(2)),
+      })),
+    );
   };
 
   // ── Order line handlers ──
@@ -209,9 +248,12 @@ export default function AdminOrderForm({
     price: number,
     quantity: number,
   ) => {
+    const multiplier = getMultiplier(discountPercent);
+    const discountedPrice = parseFloat((price * multiplier).toFixed(2));
     setLineItems((prev) => {
       const idx = prev.findIndex(
-        (li) => li.menuItem.id === dish.id && li.size === size,
+        (li) =>
+          li.type === "menu" && li.menuItem.id === dish.id && li.size === size,
       );
       if (idx >= 0) {
         const updated = [...prev];
@@ -221,8 +263,56 @@ export default function AdminOrderForm({
         };
         return updated;
       }
-      return [...prev, { menuItem: dish, size, price, quantity }];
+      return [
+        ...prev,
+        {
+          type: "menu",
+          menuItem: dish,
+          size,
+          basePrice: price,
+          price: discountedPrice,
+          quantity,
+        },
+      ];
     });
+  };
+
+  const handleAddCustomItem = () => {
+    setCustomError(null);
+    const name = customName.trim();
+    const basePrice = parseFloat(customPrice);
+    const qty = parseInt(customQty, 10);
+
+    if (!name) {
+      setCustomError("Item name is required.");
+      return;
+    }
+    if (isNaN(basePrice) || basePrice <= 0) {
+      setCustomError("Enter a valid price greater than 0.");
+      return;
+    }
+    if (isNaN(qty) || qty < 1) {
+      setCustomError("Enter a valid quantity of at least 1.");
+      return;
+    }
+
+    const multiplier = getMultiplier(discountPercent);
+    const discountedPrice = parseFloat((basePrice * multiplier).toFixed(2));
+
+    setLineItems((prev) => [
+      ...prev,
+      {
+        type: "custom",
+        dishName: name,
+        basePrice,
+        price: discountedPrice,
+        quantity: qty,
+      },
+    ]);
+
+    setCustomName("");
+    setCustomPrice("");
+    setCustomQty("1");
   };
 
   const handleRemoveLine = (index: number) =>
@@ -279,28 +369,48 @@ export default function AdminOrderForm({
     setSubmitting(true);
     try {
       const itemsMap = new Map<string, OrderItem>();
+
       lineItems.forEach((li) => {
-        const existing = itemsMap.get(li.menuItem.id);
-        if (existing) {
-          existing.quantities.push({
-            size: li.size,
-            price: li.price,
-            quantity: li.quantity,
-          });
-          existing.itemSubtotal += li.price * li.quantity;
+        if (li.type === "menu") {
+          const existing = itemsMap.get(li.menuItem.id);
+          if (existing) {
+            existing.quantities.push({
+              size: li.size,
+              price: li.price,
+              quantity: li.quantity,
+            });
+            existing.itemSubtotal += li.price * li.quantity;
+          } else {
+            itemsMap.set(li.menuItem.id, {
+              menuItemId: li.menuItem.id,
+              dishName: li.menuItem.name,
+              category: li.menuItem.category,
+              imageUrl: li.menuItem.imgPath,
+              quantities: [
+                { size: li.size, price: li.price, quantity: li.quantity },
+              ],
+              itemSubtotal: li.price * li.quantity,
+            });
+          }
         } else {
-          itemsMap.set(li.menuItem.id, {
-            menuItemId: li.menuItem.id,
-            dishName: li.menuItem.name,
-            category: li.menuItem.category,
-            imageUrl: li.menuItem.imgPath,
+          const key = `custom-${li.dishName}`;
+          itemsMap.set(key, {
+            menuItemId: "custom",
+            dishName: li.dishName,
+            category: "Custom",
             quantities: [
-              { size: li.size, price: li.price, quantity: li.quantity },
+              { size: "single", price: li.price, quantity: li.quantity },
             ],
             itemSubtotal: li.price * li.quantity,
           });
         }
       });
+
+      const parsedDiscount = parseFloat(discountPercent);
+      const validDiscount =
+        !isNaN(parsedDiscount) && parsedDiscount > 0 && parsedDiscount < 100
+          ? parsedDiscount
+          : undefined;
 
       await placeOrder({
         userId: user!.uid,
@@ -320,6 +430,7 @@ export default function AdminOrderForm({
         deliveryDate: selectedDate,
         deliveryTime: "",
         initialStatus: "active",
+        discountPercent: validDiscount,
       });
 
       setSubmitSuccess(true);
@@ -420,7 +531,7 @@ export default function AdminOrderForm({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="customer@email.com"
+                    placeholder="email@example.com"
                     maxLength={MAX_LENGTHS.email}
                   />
                 </div>
@@ -432,7 +543,7 @@ export default function AdminOrderForm({
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(206) 555-0123"
+                    placeholder="10-digit number"
                     maxLength={MAX_LENGTHS.phone}
                   />
                 </div>
@@ -494,9 +605,34 @@ export default function AdminOrderForm({
 
           {/* ── RIGHT — Order Builder ── */}
           <div className="aof-right">
+            {/* Discount */}
             <section className="aof-section">
-              <h3 className="aof-section-title">Add Items</h3>
+              <h3 className="aof-section-title">
+                Discount <span className="aof-optional">(optional)</span>
+              </h3>
+              <div className="aof-discount-row">
+                <p className="aof-section-note">
+                  All items will be priced at the discounted rate.
+                </p>
+                <div className="aof-discount-input-row">
+                  <input
+                    className="aof-custom-input aof-discount-input"
+                    type="number"
+                    value={discountPercent}
+                    onChange={(e) => handleDiscountChange(e.target.value)}
+                    placeholder="e.g. 10"
+                    min="0"
+                    max="99"
+                    step="1"
+                  />
+                  <span className="aof-discount-symbol">%</span>
+                </div>
+              </div>
+            </section>
 
+            {/* Menu item search */}
+            <section className="aof-section">
+              <h3 className="aof-section-title">Add Menu Item</h3>
               <div className="aof-search-wrapper" ref={searchRef}>
                 <input
                   className="aof-search-input"
@@ -530,7 +666,51 @@ export default function AdminOrderForm({
                   </ul>
                 )}
               </div>
+            </section>
 
+            {/* Custom item form */}
+            <section className="aof-section">
+              <h3 className="aof-section-title">Add Custom Item</h3>
+              <div className="aof-custom-form">
+                <input
+                  className="aof-custom-input aof-custom-name"
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder="Item name"
+                  maxLength={120}
+                />
+                <input
+                  className="aof-custom-input aof-custom-price"
+                  type="number"
+                  value={customPrice}
+                  onChange={(e) => setCustomPrice(e.target.value)}
+                  placeholder="Price ($)"
+                  min="0.01"
+                  step="0.01"
+                />
+                <input
+                  className="aof-custom-input aof-custom-qty"
+                  type="number"
+                  value={customQty}
+                  onChange={(e) => setCustomQty(e.target.value)}
+                  placeholder="Qty"
+                  min="1"
+                  step="1"
+                />
+                <button
+                  className="aof-custom-add-btn"
+                  onClick={handleAddCustomItem}
+                >
+                  Add
+                </button>
+              </div>
+              {customError && <p className="aof-custom-error">{customError}</p>}
+            </section>
+
+            {/* Order lines */}
+            <section className="aof-section">
+              <h3 className="aof-section-title">Order Items</h3>
               {lineItems.length === 0 ? (
                 <p className="aof-empty-order">
                   No items added yet. Search above to add dishes.
@@ -545,10 +725,20 @@ export default function AdminOrderForm({
                     <span></span>
                   </div>
                   {lineItems.map((li, i) => (
-                    <div key={i} className="aof-order-line">
-                      <span className="aof-line-name">{li.menuItem.name}</span>
+                    <div
+                      key={i}
+                      className={`aof-order-line${li.type === "custom" ? " aof-order-line-custom" : ""}`}
+                    >
+                      <span className="aof-line-name">
+                        {li.type === "menu" ? li.menuItem.name : li.dishName}
+                        {li.type === "custom" && (
+                          <span className="aof-custom-badge">Custom</span>
+                        )}
+                      </span>
                       <span className="aof-line-size">
-                        {li.size.charAt(0).toUpperCase() + li.size.slice(1)}
+                        {li.type === "menu"
+                          ? li.size.charAt(0).toUpperCase() + li.size.slice(1)
+                          : "—"}
                       </span>
                       <div className="aof-line-qty">
                         <button

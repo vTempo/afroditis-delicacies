@@ -11,6 +11,7 @@ import {
   getDoc,
   setDoc,
   deleteDoc,
+  deleteField,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import type {
@@ -106,6 +107,7 @@ export interface PlaceOrderPayload {
   deliveryDate: Date;
   deliveryTime: string;
   initialStatus?: OrderStatus;
+  discountPercent?: number;
 }
 
 export async function placeOrder(payload: PlaceOrderPayload): Promise<string> {
@@ -132,6 +134,9 @@ export async function placeOrder(payload: PlaceOrderPayload): Promise<string> {
       adminNotes: "",
       isNewForAdmin: true,
       updatedAt: now,
+      ...(payload.discountPercent !== undefined && {
+        discountPercent: payload.discountPercent,
+      }),
     });
     await saveBookedSlots(payload.deliveryDate, payload.deliveryTime);
     return docRef.id;
@@ -454,6 +459,7 @@ export async function updateOrderItems(
     await updateDoc(doc(db, "orders", orderId), {
       items,
       subtotal,
+      discountedSubtotal: deleteField(),
       updatedAt: Timestamp.now(),
     });
   } catch (error) {

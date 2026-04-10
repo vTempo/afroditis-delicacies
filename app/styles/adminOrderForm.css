@@ -261,6 +261,60 @@
   color: var(--muted);
 }
 
+/* ── Custom Item Form ────────────────────────────────────────────────────── */
+
+.aof-custom-form {
+  display: grid;
+  grid-template-columns: 1fr 90px 56px auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.aof-custom-input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border-med);
+  border-radius: 0;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--ink);
+  background: #fafaf7;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.aof-custom-input:focus {
+  outline: none;
+  border-color: var(--sage);
+}
+
+.aof-custom-add-btn {
+  padding: 0.6rem 0.75rem;
+  background: var(--sage);
+  border: none;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.aof-custom-add-btn:hover {
+  background: var(--sage-dark);
+}
+
+.aof-custom-error {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--badge-red);
+  margin: 0.4rem 0 0;
+}
+
 /* ── Order lines ─────────────────────────────────────────────────────────── */
 
 .aof-empty-order {
@@ -301,11 +355,32 @@
   border-top: 1px solid var(--border-light);
 }
 
+.aof-order-line-custom {
+  background: #fafaf7;
+}
+
 .aof-line-name {
   font-family: "Outfit", sans-serif;
   font-size: 0.82rem;
   font-weight: 400;
   color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.aof-custom-badge {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  background: var(--sage-tint);
+  border: 1px solid var(--border-sage);
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
 }
 
 .aof-line-size {
@@ -525,6 +600,15 @@
     grid-template-columns: 1fr 1fr 1fr 1fr 0.4fr;
     font-size: 0.62rem;
   }
+
+  .aof-custom-form {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .aof-custom-name {
+    grid-column: 1 / -1;
+  }
 }
 
 .aof-today-badge {
@@ -536,4 +620,33 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink);
+}
+
+/* ── Discount row ────────────────────────────────────────────────────────── */
+
+.aof-discount-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.aof-discount-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.aof-discount-input {
+  width: 80px;
+  text-align: center;
+}
+
+.aof-discount-symbol {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ink-mid);
 }
