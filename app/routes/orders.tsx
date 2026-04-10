@@ -81,6 +81,7 @@ export default function Orders() {
         o.status === "scrapped",
     )
     .sort((a, b) => deliveryDateTime(b) - deliveryDateTime(a));
+
   const clampedNewPage = Math.min(
     newPage,
     Math.max(0, Math.ceil(newOrders.length / PAGE_SIZE) - 1),
@@ -164,9 +165,7 @@ export default function Orders() {
       } else if (type === "deliver") {
         await markOrderDelivered(order.id);
       } else if (type === "scrap") {
-        const sanitizedNote =
-          sanitizeText(declineNote, MAX_LENGTHS.declineNote) || undefined;
-        await scrapOrder(order.id, sanitizedNote);
+        await scrapOrder(order.id);
       } else if (type === "delete") {
         await deleteOrder(order.id);
       }
@@ -414,20 +413,6 @@ export default function Orders() {
           confirmDanger={true}
           onConfirm={handleConfirm}
           onCancel={handleCancelConfirm}
-          extraContent={
-            <div className="decline-note-wrapper">
-              <label className="decline-note-label">
-                Reason / note for customer (optional):
-              </label>
-              <textarea
-                className="decline-note-input"
-                value={declineNote}
-                onChange={(e) => setDeclineNote(e.target.value)}
-                placeholder="e.g. Unable to fulfill this order, sorry for the inconvenience."
-                rows={3}
-              />
-            </div>
-          }
         />
       )}
       {confirmState?.type === "delete" && (

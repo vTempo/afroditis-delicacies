@@ -109,7 +109,7 @@ function orderItemsTable(order: Order): string {
         ${rows}
         <tr>
           <td colspan="2" style="padding:12px 0 0 0;font-size:15px;font-weight:bold;color:${BRAND.text};font-family:Georgia,serif;border-top:2px solid ${BRAND.lightBorder};">Total</td>
-          <td style="padding:12px 0 0 0;font-size:17px;font-weight:bold;color:${BRAND.green};text-align:right;font-family:Georgia,serif;border-top:2px solid ${BRAND.lightBorder};">$${order.subtotal.toFixed(2)}</td>
+          <td style="padding:12px 0 0 0;font-size:17px;font-weight:bold;color:${BRAND.green};text-align:right;font-family:Georgia,serif;border-top:2px solid ${BRAND.lightBorder};">$${(order.discountedSubtotal ?? order.subtotal).toFixed(2)}</td>
         </tr>
       </tbody>
     </table>`;

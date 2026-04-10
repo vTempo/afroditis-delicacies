@@ -108,13 +108,13 @@ export default function OrderRow({
             )}
           </span>
           <span className="order-customer">{order.customerName}</span>
+          <span className="order-delivery-time">
+            {formatDateTime(order.deliveryDate, order.deliveryTime)}
+          </span>
           <span className="order-city">{order.deliveryAddress.city}</span>
         </div>
 
         <div className="order-row-right">
-          <span className="order-delivery-time">
-            {formatDateTime(order.deliveryDate, order.deliveryTime)}
-          </span>
           <span
             className={`order-payment-badge ${
               order.paymentMethod === "pay_on_delivery"

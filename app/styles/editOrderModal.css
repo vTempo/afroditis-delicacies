@@ -89,15 +89,10 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--sage);
-  margin: 0 0 0.65rem 0;
+  margin: 0 0 0.6rem;
 }
 
 /* ── Search ──────────────────────────────────────────────────────────────── */
-
-.eom-search-section {
-  display: flex;
-  flex-direction: column;
-}
 
 .eom-search-wrapper {
   position: relative;
@@ -105,13 +100,13 @@
 
 .eom-search-input {
   width: 100%;
-  padding: 0.55rem 0.75rem;
-  font-family: "Outfit", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 300;
-  color: var(--ink);
+  padding: 0.6rem 0.875rem;
   border: 1px solid var(--border);
   background: #fafaf7;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--ink);
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s ease;
@@ -123,32 +118,28 @@
 
 .eom-search-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 2px);
   left: 0;
   right: 0;
   background: #fff;
   border: 1px solid var(--border);
-  border-top: none;
-  z-index: 10;
-  max-height: 200px;
+  z-index: 100;
+  max-height: 220px;
   overflow-y: auto;
   list-style: none;
   margin: 0;
   padding: 0;
+  box-shadow: 0 4px 16px rgba(28, 26, 20, 0.1);
 }
 
 .eom-search-result {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 0.875rem;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background-color 0.15s ease;
-}
-
-.eom-search-result:last-child {
-  border-bottom: none;
+  transition: background-color 0.12s ease;
+  gap: 0.5rem;
 }
 
 .eom-search-result:hover {
@@ -164,25 +155,76 @@
 
 .eom-result-category {
   font-family: "Outfit", sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 300;
   color: var(--ink-mid);
+  white-space: nowrap;
 }
 
 .eom-search-empty {
-  padding: 0.75rem;
+  padding: 0.6rem 0.875rem;
   font-family: "Outfit", sans-serif;
   font-size: 0.82rem;
   font-weight: 300;
   color: var(--ink-mid);
+  list-style: none;
+}
+
+/* ── Custom Item Form ────────────────────────────────────────────────────── */
+
+.eom-custom-form {
+  display: grid;
+  grid-template-columns: 1fr 100px 60px auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.eom-custom-input {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: #fafaf7;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--ink);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+  width: 100%;
+}
+
+.eom-custom-input:focus {
+  border-color: var(--sage);
+}
+
+.eom-custom-add-btn {
+  padding: 0.6rem 0.875rem;
+  background: var(--sage);
+  border: none;
+  font-family: "Outfit", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.eom-custom-add-btn:hover {
+  background: var(--sage-dark);
+}
+
+.eom-custom-error {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--badge-red);
+  margin: 0.4rem 0 0;
 }
 
 /* ── Line Items ──────────────────────────────────────────────────────────── */
-
-.eom-items-section {
-  display: flex;
-  flex-direction: column;
-}
 
 .eom-empty {
   font-family: "Outfit", sans-serif;
@@ -227,6 +269,27 @@
   font-size: 0.85rem;
   font-weight: 400;
   color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.eom-custom-badge {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  background: var(--sage-tint);
+  border: 1px solid var(--border-sage);
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+.eom-line-custom {
+  background: #fafaf7;
 }
 
 .eom-line-size {
@@ -366,4 +429,57 @@
 .eom-save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ── Discount adjustment row ─────────────────────────────────────────────── */
+
+.eom-discount-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  flex-wrap: wrap;
+}
+
+.eom-discount-btn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid var(--sage);
+  color: var(--sage);
+  font-family: "Outfit", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.eom-discount-btn:hover:not(:disabled) {
+  background: var(--sage);
+  color: #fff;
+}
+
+.eom-discount-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.eom-discount-hint {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Unadjusted line item — warm highlight to signal full price */
+.eom-line-unadjusted {
+  background: #fdf8ee;
+  border-left: 2px solid var(--gold, #b8922a);
 }
