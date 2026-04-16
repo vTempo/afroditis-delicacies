@@ -1,0 +1,550 @@
+/* app/styles/analytics.css */
+
+/* ── Page Layout ─────────────────────────────────────────────────────────── */
+
+.analytics-page {
+  flex: 1;
+  background: #fafaf7;
+  padding: 3rem 1.5rem;
+}
+
+.analytics-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.analytics-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.analytics-page-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ── Toggle ──────────────────────────────────────────────────────────────── */
+
+.analytics-toggle {
+  display: flex;
+  border: 1px solid var(--border-med);
+  overflow: hidden;
+}
+
+.analytics-toggle-btn {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.55rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-mid);
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+
+.analytics-toggle-btn + .analytics-toggle-btn {
+  border-left: 1px solid var(--border-med);
+}
+
+.analytics-toggle-btn--active {
+  background: var(--sage);
+  color: #fff;
+}
+
+.analytics-toggle-btn:not(.analytics-toggle-btn--active):hover {
+  background: var(--sage-tint);
+  color: var(--ink);
+}
+
+/* ── Month Navigator ─────────────────────────────────────────────────────── */
+
+.analytics-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.analytics-month-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+  margin: 0;
+  min-width: 180px;
+  text-align: center;
+}
+
+.analytics-month-arrow {
+  font-size: 1.6rem;
+  line-height: 1;
+  background: none;
+  border: 1px solid var(--border-med);
+  color: var(--sage);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    color 0.18s;
+  flex-shrink: 0;
+}
+
+.analytics-month-arrow:hover:not(:disabled) {
+  background: var(--sage);
+  color: #fff;
+}
+
+.analytics-month-arrow:disabled {
+  color: var(--border-med);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+/* ── View Section ────────────────────────────────────────────────────────── */
+
+.analytics-view-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.analytics-loading {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.analytics-empty {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+/* ── KPI Cards ───────────────────────────────────────────────────────────── */
+
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.analytics-kpi-card {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-radius: 0;
+}
+
+.analytics-kpi-card--green {
+  background: var(--sage-tint);
+  border: 1px solid var(--border-sage);
+}
+
+.analytics-kpi-card--blue {
+  background: rgba(118, 164, 181, 0.12);
+  border: 1px solid rgba(118, 164, 181, 0.3);
+}
+
+.analytics-kpi-card--gold {
+  background: rgba(184, 146, 42, 0.08);
+  border: 1px solid rgba(184, 146, 42, 0.28);
+}
+
+.analytics-kpi-card--neutral {
+  background: #f4f1ea;
+  border: 1px solid var(--border-med);
+}
+
+.analytics-kpi-label {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+}
+
+.analytics-kpi-value {
+  font-family: "Playfair Display", serif;
+  font-size: 2.1rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.analytics-kpi-sub {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.analytics-kpi-muted {
+  color: var(--muted);
+}
+
+.analytics-delta--up {
+  color: var(--sage-dark);
+  font-weight: 400;
+}
+
+.analytics-delta--down {
+  color: var(--badge-red);
+  font-weight: 400;
+}
+
+/* ── Sections ────────────────────────────────────────────────────────────── */
+
+.analytics-section {
+  background: #f4f1ea;
+  border: 1px solid var(--border-med);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.analytics-section--wide {
+  overflow-x: auto;
+}
+
+.analytics-section-title {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+}
+
+.analytics-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ── Status Pills ────────────────────────────────────────────────────────── */
+
+.analytics-status-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+}
+
+.analytics-status-pill {
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0;
+}
+
+.analytics-status-count {
+  font-family: "Playfair Display", serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.analytics-status-name {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.analytics-status-pill--pending {
+  background: rgba(184, 146, 42, 0.1);
+  border: 1px solid rgba(184, 146, 42, 0.3);
+  color: #7a6118;
+}
+
+.analytics-status-pill--active {
+  background: var(--sage-tint);
+  border: 1px solid var(--border-sage);
+  color: var(--sage-dark);
+}
+
+.analytics-status-pill--delivered {
+  background: rgba(118, 164, 181, 0.12);
+  border: 1px solid rgba(118, 164, 181, 0.3);
+  color: #2a6577;
+}
+
+.analytics-status-pill--declined {
+  background: rgba(199, 81, 70, 0.08);
+  border: 1px solid rgba(199, 81, 70, 0.22);
+  color: var(--badge-red);
+}
+
+.analytics-status-pill--scrapped {
+  background: rgba(184, 120, 0, 0.08);
+  border: 1px solid rgba(184, 120, 0, 0.22);
+  color: #b85c00;
+}
+
+/* ── Bar List ────────────────────────────────────────────────────────────── */
+
+.analytics-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.analytics-bar-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 100px 32px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-bar-rank {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.analytics-bar-label {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.analytics-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.analytics-bar-fill {
+  height: 100%;
+  background: var(--sage);
+  transition: width 0.4s ease;
+}
+
+.analytics-bar-count {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--ink-mid);
+  text-align: right;
+}
+
+/* ── Revenue Bar Chart ───────────────────────────────────────────────────── */
+
+.analytics-revenue-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  height: 220px;
+  padding: 0.5rem 0 0;
+  min-width: 500px;
+}
+
+.analytics-revenue-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.analytics-revenue-amount {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 400;
+  color: var(--ink-mid);
+  white-space: nowrap;
+}
+
+.analytics-revenue-bar-track {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+.analytics-revenue-bar-fill {
+  width: 100%;
+  background: var(--sage);
+  transition: height 0.4s ease;
+  min-height: 2px;
+}
+
+.analytics-revenue-label {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 2rem 1rem;
+  }
+
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-status-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .analytics-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-bar-row {
+    grid-template-columns: 24px 1fr 70px 28px;
+  }
+
+  .analytics-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .analytics-month-title {
+    min-width: unset;
+    font-size: 1.2rem;
+  }
+}
+
+/* ── Top Customers Table ─────────────────────────────────────────────────── */
+
+.analytics-customers-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.analytics-customers-header {
+  display: grid;
+  grid-template-columns: 1fr 60px 100px;
+  padding: 0 0 0.5rem 0;
+  border-bottom: 1px solid var(--border-med);
+  font-family: "Outfit", sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.analytics-customers-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 100px;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.analytics-customers-row:last-child {
+  border-bottom: none;
+}
+
+.analytics-customers-rank-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.analytics-customers-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.analytics-customers-orders {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-mid);
+  text-align: center;
+}
+
+.analytics-customers-spent {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ── Payment Breakdown ───────────────────────────────────────────────────── */
+
+.analytics-payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.analytics-payment-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 80px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-payment-label {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1rem;
+  color: var(--ink);
+}
+
+.analytics-payment-count {
+  font-family: "Outfit", sans-serif;
+  font-size: 0.8rem;
+  color: var(--ink-mid);
+  text-align: right;
+}
+
+.analytics-payment-pct {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
