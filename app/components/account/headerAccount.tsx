@@ -1,5 +1,6 @@
 // app/components/utils/headerAccount.tsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../context/authContext/authContext";
 import { removeFavorite } from "../../services/favoritesService";
 import { getUserFavorites } from "../../services/favoritesService";
@@ -12,7 +13,6 @@ import FavoritesView from "../account/FavoritesView";
 import OrderHistoryView from "../account/OrderHistoryView";
 import AccountSettingsView from "../account/AccountSettingsView";
 import ManageCalendarView from "../account/ManageCalendarView";
-import AnalyticsView from "../account/AnalyticsView";
 import "../../styles/headerAccount.css";
 
 interface HeaderAccountProps {
@@ -26,7 +26,6 @@ type ProfileView =
   | "orderHistory"
   | "accountSettings"
   | "manageCalendar"
-  | "analytics"
   | "forgotPassword";
 
 const VIEW_TITLES: Record<ProfileView, string> = {
@@ -35,7 +34,6 @@ const VIEW_TITLES: Record<ProfileView, string> = {
   favorites: "My Favorites",
   orderHistory: "Order History",
   accountSettings: "Account Settings",
-  analytics: "Business Analytics",
   forgotPassword: "Reset Password",
 };
 
@@ -53,6 +51,7 @@ function ChevronRight() {
 const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
   const { user, userProfile, logout, sendVerificationEmail, reloadUser } =
     useAuth();
+  const navigate = useNavigate();
   const isAdmin = user && userProfile?.role === "admin";
 
   const isGoogleUser = user?.providerData.some(
@@ -249,7 +248,10 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
                       </button>
                       <button
                         className="profile-menu-item"
-                        onClick={() => navigateToView("analytics")}
+                        onClick={() => {
+                          navigate("/analytics");
+                          onClose();
+                        }}
                       >
                         <svg
                           className="menu-icon"
@@ -354,7 +356,6 @@ const HeaderAccount: React.FC<HeaderAccountProps> = ({ isOpen, onClose }) => {
             )}
             {currentView === "accountSettings" && <AccountSettingsView />}
             {currentView === "manageCalendar" && <ManageCalendarView />}
-            {currentView === "analytics" && <AnalyticsView />}
           </div>
         </div>
       ) : (

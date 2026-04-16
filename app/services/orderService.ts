@@ -481,6 +481,25 @@ export async function markOrderViewedByAdmin(orderId: string): Promise<void> {
 
 export async function deleteOrder(orderId: string): Promise<void> {
   try {
+    const orderSnap = await getDoc(doc(db, "orders", orderId));
+    if (!orderSnap.exists()) throw new Error("Order not found.");
+    const data = orderSnap.data();
+
+    const isDelivered = data.status === "delivered";
+    if (isDelivered) {
+      const deliveryDate: Date =
+        data.deliveryDate?.toDate?.() ?? new Date(data.deliveryDate);
+      const daysSinceDelivery =
+        (Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24);
+
+      if (daysSinceDelivery > 7) {
+        await setDoc(doc(db, "archivedOrders", orderId), {
+          ...data,
+          archivedAt: Timestamp.now(),
+        });
+      }
+    }
+
     await deleteDoc(doc(db, "orders", orderId));
   } catch (error) {
     console.error("Error deleting order:", error);
